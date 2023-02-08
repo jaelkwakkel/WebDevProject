@@ -17,7 +17,13 @@ namespace Setup.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            UpdatePageViewCookie();
+            return View(this);
+        }
+
+        public IActionResult About()
+        {
+            return View(new AccountDetails());
         }
 
         public IActionResult Privacy()
