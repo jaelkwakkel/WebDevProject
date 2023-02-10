@@ -2,9 +2,10 @@
 
 public class HomeModel
 {
-    public HomeModel()
+    public HomeModel(string? amount)
     {
-        
+        AmountOfPageViews = amount ?? "0";
     }
-    public string AmountOfPageViews = "0";
+
+    public string AmountOfPageViews;
 }
