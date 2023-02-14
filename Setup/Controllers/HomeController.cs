@@ -25,6 +25,11 @@ namespace Setup.Controllers
         {
             return View(new AccountDetails());
         }
+        
+        public IActionResult Contact()
+        {
+            return View();
+        }
 
         public IActionResult Privacy()
         {

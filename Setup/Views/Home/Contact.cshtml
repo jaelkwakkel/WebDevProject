@@ -1,0 +1,41 @@
+﻿@* @model TModel *@
+
+@{
+    ViewData["Title"] = "Contact";
+}
+
+<!DOCTYPE html>
+
+<html lang="nl">
+<head>
+    <title>@ViewData["Title"]</title>
+</head>
+<body>
+<div class="text-center">
+    <h1 class="display-4 text-light">@ViewData["Title"]</h1>
+    <h4 class="display-8 text-light">Neem contact op met Jaël Kwakkel</h4>
+    <div class="d-flex flex-sm-row flex-column justify-content-evenly flex-wrap">
+        <form action="" method="post" class="form-contactpagina" id="formName">
+            <div class="form-contactpagina__inputelement fx-col">
+                <label for="email" class="text-light">Jouw email: </label>
+                <input type="email" name="email" id="email">
+            </div>
+        
+            <div class="form-contactpagina__inputelement fx-col">
+                <label for="subject" class="text-light">Onderwerp: </label>
+                <input type="text" name="subject" id="subject" maxlength="200" required>
+            </div>
+        
+            <div class="form-contactpagina__inputelement fx-col input-group bg-dark">
+                <label for="message" class="text-light form-label">Bericht:</label>
+                <input type="text" name="message" id="message" maxlength="600" class="input-group-text" required>
+            </div>
+        
+            <div class="form-contactpagina__inputelement">
+                <input type="submit" value="Verstuur!">
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

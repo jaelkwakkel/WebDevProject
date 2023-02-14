@@ -15,8 +15,74 @@ html {
 html {
   position: relative;
   min-height: 100%;
+  background: #101020;
 }
 
 body {
   margin-bottom: 60px;
+  background: #101020;
+}
+
+.gdpr-container {
+  display: flex;
+  flex-direction: column;
+  font-family: Arial;
+}
+
+.gdpr-consent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  margin: 5px;
+  border: 2px solid white;
+  border-radius: 15px 15px 15px 15px;
+  background: #202030;
+}
+
+.gdpr-consent__description{
+  display: flex;
+  justify-content: center;
+  color: #eee;
+}
+
+.gdpr-consent__choice{
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+.gdpr-consent__button--accept {
+  background-color: #a5e5a5;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
+
+.gdpr-consent__button--accept:hover {
+  background-color: #c5e3c5;
+}
+
+.gdpr-consent__button--reject {
+  background-color: #e5a5a5;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
+
+.gdpr-consent__button--reject:hover {
+  background-color: #e3c5c5;
+}
+
+.hide{
+  display: none;
+}
+
+.show{
+  display: block;
 }
