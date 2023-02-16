@@ -1,4 +1,4 @@
-﻿@* @model TModel *@
+﻿@model ContactFormModel
 
 @{
     ViewData["Title"] = "Contact";
@@ -16,22 +16,61 @@
     <h4 class="display-8 text-light">Neem contact op met Jaël Kwakkel</h4>
 
     <section class="justify-content-center flex-row">
-        <form class="w-50 offset-3">
-            <div class="form-group">
-                <label for="emailInput" class="text-light">Email address</label>
-                <input type="email" class="form-control" id="emailInput" placeholder="name@example.com" required>
-            </div>
 
-            <div class="form-group">
-                <label for="subjectInput" class="text-light">Subject</label>
-                <input type="text" class="form-control" id="subjectInput" maxlength="200" required>
-            </div>
+        <div class="w-50 offset-3">
 
-            <div class="form-group">
-                <label for="messageInput" class="text-light">Message</label>
-                <textarea class="form-control" id="messageInput" rows="5" maxlength="600" required></textarea>
-            </div>
-        </form>
+            @using (Html.BeginForm())
+            {
+                <div class="form-group w-50 offset-3">
+                    <div class="text-light">
+                        @Html.LabelFor(s => s.Email)
+                    </div>
+                    <div class="">
+                        @Html.TextBoxFor(s => s.Email, new { @class = "form-control" })
+                        <div class="text-warning">
+                            @Html.ValidationMessageFor(t => t.Email)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Description)
+                    @Html.TextBoxFor(s => s.Description)
+                    @Html.ValidationMessageFor(t => t.Description)
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(s => s.Message)
+                    @Html.TextAreaFor(s => s.Message)
+                    @Html.ValidationMessageFor(t => t.Message)
+                </div>
+
+                <div class="form-group">
+                    <input type="submit"/>
+                </div>
+            }
+        </div>
+
+        @* <form class="w-50 offset-3"> *@
+        @*     <div class="form-group"> *@
+        @*         <label for="emailInput" class="text-light">Email address</label> *@
+        @*         <input type="email" class="form-control" id="emailInput" placeholder="name@example.com" required> *@
+        @*     </div> *@
+        @* *@
+        @*     <div class="form-group"> *@
+        @*         <label for="subjectInput" class="text-light">Subject</label> *@
+        @*         <input type="text" class="form-control" id="subjectInput" maxlength="200" required> *@
+        @*     </div> *@
+        @* *@
+        @*     <div class="form-group"> *@
+        @*         <label for="messageInput" class="text-light">Message</label> *@
+        @*         <textarea class="form-control" id="messageInput" rows="5" maxlength="600" required></textarea> *@
+        @*     </div> *@
+        @* *@
+        @*     <div class="form-group"> *@
+        @*         <input class="form-control" type="submit"> *@
+        @*     </div> *@
+        @* </form> *@
     </section>
 </div>
 </body>
