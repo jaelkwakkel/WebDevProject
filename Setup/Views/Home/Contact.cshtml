@@ -14,28 +14,25 @@
 <div class="text-center">
     <h1 class="display-4 text-light">@ViewData["Title"]</h1>
     <h4 class="display-8 text-light">Neem contact op met Jaël Kwakkel</h4>
-    <div class="d-flex flex-sm-row flex-column justify-content-evenly flex-wrap">
-        <form action="" method="post" class="form-contactpagina" id="formName">
-            <div class="form-contactpagina__inputelement fx-col">
-                <label for="email" class="text-light">Jouw email: </label>
-                <input type="email" name="email" id="email">
+
+    <section class="justify-content-center flex-row">
+        <form class="w-50 offset-3">
+            <div class="form-group">
+                <label for="emailInput" class="text-light">Email address</label>
+                <input type="email" class="form-control" id="emailInput" placeholder="name@example.com" required>
             </div>
-        
-            <div class="form-contactpagina__inputelement fx-col">
-                <label for="subject" class="text-light">Onderwerp: </label>
-                <input type="text" name="subject" id="subject" maxlength="200" required>
+
+            <div class="form-group">
+                <label for="subjectInput" class="text-light">Subject</label>
+                <input type="text" class="form-control" id="subjectInput" maxlength="200" required>
             </div>
-        
-            <div class="form-contactpagina__inputelement fx-col input-group bg-dark">
-                <label for="message" class="text-light form-label">Bericht:</label>
-                <input type="text" name="message" id="message" maxlength="600" class="input-group-text" required>
-            </div>
-        
-            <div class="form-contactpagina__inputelement">
-                <input type="submit" value="Verstuur!">
+
+            <div class="form-group">
+                <label for="messageInput" class="text-light">Message</label>
+                <textarea class="form-control" id="messageInput" rows="5" maxlength="600" required></textarea>
             </div>
         </form>
-    </div>
+    </section>
 </div>
 </body>
 </html>
