@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics;
+using Ganss.Xss;
+using Microsoft.AspNetCore.Mvc;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Setup.Models;
-using System.Diagnostics;
 
 namespace Setup.Controllers;
 
@@ -15,18 +16,9 @@ public class HomeController : Controller
 
     public HomeController(ContactFormDbContext context, ILogger<HomeController> logger)
     {
+        _logger = logger;
         _context = context;
     }
-
-    // public HomeController(ContactFormDbContext context)
-    // {
-    //     _context = context;
-    // }
-    //
-    // public HomeController(ILogger<HomeController> logger)
-    // {
-    //     _logger = logger;
-    // }
 
     public IActionResult Index()
     {
@@ -35,7 +27,7 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public ActionResult Contact(ContactFormModel input)
+    public IActionResult Contact(ContactFormModel input)
     {
         if (!ModelState.IsValid) return View(input);
 
@@ -46,24 +38,29 @@ public class HomeController : Controller
 
     private void CreateNewContact(ContactFormModel input)
     {
-        // using var db = new ContactFormDbContext(null);
+        SendMail(input).Wait();
+
         _context.ContactFormModels.Add(input);
         _context.SaveChanges();
-
-        SendMail().Wait();
     }
 
-    static async Task SendMail()
+    private static async Task SendMail(ContactFormModel input)
     {
+        //Sanitize input before doing anything with it.
+        var sanitizer = new HtmlSanitizer();
+        var sanitizedEmail = sanitizer.Sanitize(input.Email);
+        var sanitizedSubject = sanitizer.Sanitize(input.Subject);
+        var sanitizedMessage = sanitizer.Sanitize(input.Message);
+
         var apiKey = Environment.GetEnvironmentVariable("WebdevProject");
         var client = new SendGridClient(apiKey);
-        var from = new EmailAddress("contactwebdevformmail@gmail.com", "Example User");
-        var subject = "Sending with SendGrid is Fun";
-        var to = new EmailAddress("contactwebdevformmail@gmail.com", "Example User");
-        var plainTextContent = "and easy to do anywhere, even with C#";
-        var htmlContent = "<strong>and easy to do anywhere, even with C#</strong>";
+        var from = new EmailAddress("contactwebdevformmail@gmail.com", sanitizedEmail);
+        var subject = sanitizedSubject;
+        var to = new EmailAddress("contactwebdevformmail@gmail.com", "Contact");
+        var plainTextContent = sanitizedMessage;
+        var htmlContent = sanitizedMessage;
         var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
-        var response = await client.SendEmailAsync(msg);
+        await client.SendEmailAsync(msg);
     }
 
     public IActionResult About()

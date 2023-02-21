@@ -9,21 +9,20 @@
 <html lang="nl">
 <head>
     <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/captcha.css" asp-append-version="true"/>
 </head>
-<body>
+<body onload="generate()">
 <div class="text-center">
     <h1 class="display-4 text-light">@ViewData["Title"]</h1>
     <h4 class="display-8 text-light">Neem contact op met Jaël Kwakkel</h4>
 
     <section class="justify-content-center flex-row">
-
-
         @using (Html.BeginForm())
         {
             <div class="row g-3">
                 <div class="col-md-6">
                     @Html.LabelFor(s => s.Email, new { @class = "form-label text-light" })
-                    @Html.TextBoxFor(s => s.Email, new { @class = "form-control", id = "validationServer01" })
+                    @Html.TextBoxFor(s => s.Email, new { @class = "form-control", placeholder = "name@example.com" })
                     <div class="text-warning">
                         @Html.ValidationMessageFor(t => t.Email)
                     </div>
@@ -31,7 +30,7 @@
 
                 <div class="col-md-6">
                     @Html.LabelFor(s => s.Subject, new { @class = "form-label text-light" })
-                    @Html.TextBoxFor(s => s.Subject, new { @class = "form-control" })
+                    @Html.TextBoxFor(s => s.Subject, new { @class = "form-control", placeholder = "Subject" })
                     <div class="text-warning">
                         @Html.ValidationMessageFor(t => t.Subject)
                     </div>
@@ -39,14 +38,40 @@
 
                 <div class="mb-3">
                     @Html.LabelFor(s => s.Message, new { @class = "form-label text-light" })
-                    @Html.TextAreaFor(s => s.Message, new { @class = "form-control" })
+                    @Html.TextAreaFor(s => s.Message, new { @class = "form-control", placeholder = "Message" })
                     <div class="text-warning">
                         @Html.ValidationMessageFor(t => t.Message)
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <input type="submit"/>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-secondary">Left</button>
+                    <button type="button" class="btn btn-secondary">Middle</button>
+                    <button type="button" class="btn btn-secondary">Right</button>
+                </div>
+
+
+                @* Captcha *@
+
+                <div class="col-mb-4">
+                    <label for="CaptchaText" class="form-label text-light">Code</label>
+
+                    <div class="d-flex justify-content-center">
+                        <div class="p-2">
+                            <canvas id="image" class="img-fluid rounded"></canvas>
+                        </div>
+                        <div class="p-2">
+                            <input type="text" id="CaptchaText" placeholder="Captcha code" class="form-control"/>
+                        </div>
+                        <div class="p-2">
+                            <div class="form-group">
+                                <input type="submit" class="btn btn-primary"/>
+                            </div>
+                        </div>
+                        <div class="text-warning">
+                            <p id="IncorrectCaptchaWarning"></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         }

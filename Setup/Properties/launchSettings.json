@@ -4,7 +4,8 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "WebdevProject": "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"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5064"
@@ -23,7 +24,8 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "WebdevProject": "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"
       }
     }
   },
