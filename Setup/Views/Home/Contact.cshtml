@@ -13,15 +13,15 @@
 </head>
 <body onload="generate()">
 <div class="text-center">
-    <h1 class="display-4 text-light">@ViewData["Title"]</h1>
-    <h4 class="display-8 text-light">Neem contact op met Jaël Kwakkel</h4>
+    <h1 class="display-4">@ViewData["Title"]</h1>
+    <h4 class="display-8">Neem contact op met Jaël Kwakkel</h4>
 
     <section class="justify-content-center flex-row">
         @using (Html.BeginForm())
         {
             <div class="row g-3">
                 <div class="col-md-6">
-                    @Html.LabelFor(s => s.Email, new { @class = "form-label text-light" })
+                    @Html.LabelFor(s => s.Email, new { @class = "form-label" })
                     @Html.TextBoxFor(s => s.Email, new { @class = "form-control", placeholder = "name@example.com" })
                     <div class="text-warning">
                         @Html.ValidationMessageFor(t => t.Email)
@@ -29,7 +29,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    @Html.LabelFor(s => s.Subject, new { @class = "form-label text-light" })
+                    @Html.LabelFor(s => s.Subject, new { @class = "form-label" })
                     @Html.TextBoxFor(s => s.Subject, new { @class = "form-control", placeholder = "Subject" })
                     <div class="text-warning">
                         @Html.ValidationMessageFor(t => t.Subject)
@@ -37,7 +37,7 @@
                 </div>
 
                 <div class="mb-3">
-                    @Html.LabelFor(s => s.Message, new { @class = "form-label text-light" })
+                    @Html.LabelFor(s => s.Message, new { @class = "form-label" })
                     @Html.TextAreaFor(s => s.Message, new { @class = "form-control", placeholder = "Message" })
                     <div class="text-warning">
                         @Html.ValidationMessageFor(t => t.Message)
@@ -54,7 +54,7 @@
                 @* Captcha *@
 
                 <div class="col-mb-4">
-                    <label for="CaptchaText" class="form-label text-light">Code</label>
+                    <label for="CaptchaText" class="form-label">Code</label>
 
                     <div class="d-flex justify-content-center">
                         <div class="p-2">
