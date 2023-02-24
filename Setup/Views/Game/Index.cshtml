@@ -1,0 +1,34 @@
+﻿@* @model TModel *@
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<section class="h-100">
+    <div class="mask d-flex align-items-center h-100">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <div class="container">
+                            <div class="row row-cols-10">
+                                @{
+                                    for (var i = 0; i < 10; i++)
+                                    {
+                                        for (var j = 0; j < 10; j++)
+                                        {
+                                            <div class="col">col</div>
+                                            @* <div class="w-100"></div> *@
+                                        }
+                                        <div class="w-100"></div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

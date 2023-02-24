@@ -1,12 +1,12 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Setup</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Setup.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/Setup.styles.css" asp-append-version="true"/>
 </head>
 <body>
 <header>
@@ -23,14 +23,14 @@
                         <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        <a class="nav-link text-light" asp-area="" asp-controller="Account" asp-action="CreateAccount">Create account</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="About">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Contact">Contact</a>
-                    </li>
+                    @* <li class="nav-item"> *@
+                    @*     <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="About">About</a> *@
+                    @* </li> *@
+                    @* <li class="nav-item"> *@
+                    @*     <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Contact">Contact</a> *@
+                    @* </li> *@
                 </ul>
             </div>
         </div>
@@ -41,36 +41,38 @@
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
-    
+
     <div class="gdpr-container">
-        
+
         <h1 id="content-gpdr-consent-status" class="text-light"></h1>
-        
+
         <div class="content-gdpr-not-chosen hide text-light">
             @* <p>Deze content wordt alleen getoond als gdrp consent niet is gekozen.</p> *@
         </div>
-        
+
         <div class="content-gdpr-accept hide text-light">
             @* <p>Deze content wordt alleen getoond als gdrp is geaccepteerd.</p> *@
         </div>
-        
+
         <div class="content-gdpr-reject hide text-light">
             @* <p>Deze content wordt alleen getoond als gdrp is verworpen.</p> *@
         </div>
-    
+
         <section class="gdpr-consent hide text-light">
-    
+
             <div class="gdpr-consent__description">
-                <p>Deze website gebruikt cookies.
+                <p>
+                    Deze website gebruikt cookies.
                     We gebruiken cookies om content te personaliseren, voor social media en het analyseren
-                    van verkeer op de website, advertenties.</p>
+                    van verkeer op de website, advertenties.
+                </p>
             </div>
-    
+
             <div class="gdpr-consent__choice">
                 <button class="gdpr-consent__button--accept">Ja, natuurlijk</button>
                 <button class="gdpr-consent__button--reject">Neu, misschien later</button>
             </div>
-    
+
         </section>
     </div>
 </div>
@@ -83,6 +85,6 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
-@await RenderSectionAsync("Scripts", required: false)
+@await RenderSectionAsync("Scripts", false)
 </body>
 </html>

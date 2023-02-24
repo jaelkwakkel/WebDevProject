@@ -1,4 +1,4 @@
-﻿@* @model TModel *@
+﻿@model ContactFormModel
 
 @{
     ViewData["Title"] = "Contact";
@@ -9,33 +9,73 @@
 <html lang="nl">
 <head>
     <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/captcha.css" asp-append-version="true"/>
 </head>
-<body>
+<body onload="generate()">
 <div class="text-center">
-    <h1 class="display-4 text-light">@ViewData["Title"]</h1>
-    <h4 class="display-8 text-light">Neem contact op met Jaël Kwakkel</h4>
-    <div class="d-flex flex-sm-row flex-column justify-content-evenly flex-wrap">
-        <form action="" method="post" class="form-contactpagina" id="formName">
-            <div class="form-contactpagina__inputelement fx-col">
-                <label for="email" class="text-light">Jouw email: </label>
-                <input type="email" name="email" id="email">
+    <h1 class="display-4">@ViewData["Title"]</h1>
+    <h4 class="display-8">Neem contact op met Jaël Kwakkel</h4>
+
+    <section class="justify-content-center flex-row">
+        @using (Html.BeginForm())
+        {
+            <div class="row g-3">
+                <div class="col-md-6">
+                    @Html.LabelFor(s => s.Email, new { @class = "form-label" })
+                    @Html.TextBoxFor(s => s.Email, new { @class = "form-control", placeholder = "name@example.com" })
+                    <div class="text-warning">
+                        @Html.ValidationMessageFor(t => t.Email)
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(s => s.Subject, new { @class = "form-label" })
+                    @Html.TextBoxFor(s => s.Subject, new { @class = "form-control", placeholder = "Subject" })
+                    <div class="text-warning">
+                        @Html.ValidationMessageFor(t => t.Subject)
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    @Html.LabelFor(s => s.Message, new { @class = "form-label" })
+                    @Html.TextAreaFor(s => s.Message, new { @class = "form-control", placeholder = "Message" })
+                    <div class="text-warning">
+                        @Html.ValidationMessageFor(t => t.Message)
+                    </div>
+                </div>
+
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-secondary">Left</button>
+                    <button type="button" class="btn btn-secondary">Middle</button>
+                    <button type="button" class="btn btn-secondary">Right</button>
+                </div>
+
+
+                @* Captcha *@
+
+                <div class="col-mb-4">
+                    <label for="CaptchaText" class="form-label">Code</label>
+
+                    <div class="d-flex justify-content-center">
+                        <div class="p-2">
+                            <canvas id="image" class="img-fluid rounded"></canvas>
+                        </div>
+                        <div class="p-2">
+                            <input type="text" id="CaptchaText" placeholder="Captcha code" class="form-control"/>
+                        </div>
+                        <div class="p-2">
+                            <div class="form-group">
+                                <input type="submit" class="btn btn-primary"/>
+                            </div>
+                        </div>
+                        <div class="text-warning">
+                            <p id="IncorrectCaptchaWarning"></p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        
-            <div class="form-contactpagina__inputelement fx-col">
-                <label for="subject" class="text-light">Onderwerp: </label>
-                <input type="text" name="subject" id="subject" maxlength="200" required>
-            </div>
-        
-            <div class="form-contactpagina__inputelement fx-col input-group bg-dark">
-                <label for="message" class="text-light form-label">Bericht:</label>
-                <input type="text" name="message" id="message" maxlength="600" class="input-group-text" required>
-            </div>
-        
-            <div class="form-contactpagina__inputelement">
-                <input type="submit" value="Verstuur!">
-            </div>
-        </form>
-    </div>
+        }
+    </section>
 </div>
 </body>
 </html>
