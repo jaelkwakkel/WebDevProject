@@ -11,17 +11,33 @@ public class AccountController : Controller
         return View();
     }
 
+    // GET
+    public IActionResult CreateAccount()
+    {
+        return View();
+    }
+
+    // GET
+    public IActionResult Login()
+    {
+        return View();
+    }
+
+    //POST
     [HttpPost]
     public IActionResult CreateAccount(AccountModel input)
     {
         if (!ModelState.IsValid) return View(input);
 
-        return View();
+        return Redirect("/");
     }
 
-    // GET
-    public IActionResult CreateAccount()
+    //POST
+    [HttpPost]
+    public IActionResult Login(AccountModel input)
     {
-        return View();
+        if (!ModelState.IsValid) return View(input);
+
+        return Redirect("/");
     }
 }
