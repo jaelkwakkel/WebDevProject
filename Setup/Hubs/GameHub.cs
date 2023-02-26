@@ -45,9 +45,7 @@ public class GameHub : Hub
                 name = name + rnd.Next(1, 100);
             }
 
-
             user = new UserModel(Context.ConnectionId, name);
-
             _users.Add(user);
         }
 
@@ -63,7 +61,6 @@ public class GameHub : Hub
 
     public async Task UpdateAllGames()
     {
-        // var games = _mapper.Map<List<GameDto>>(_games);
         await Clients.All.SendAsync("UpdateAllGames", _games);
     }
 

@@ -14,20 +14,8 @@
                         <div class="card-body p-5">
                             <div class="container">
                                 <div class="form-row d-flex justify-content-center align-items-center">
-                                    @using (Html.BeginForm("Play", "Game"))
-                                    {
-                                        <div class="col m-2">
-                                            @Html.TextBoxFor(t => t.UserName, new { @class = "form-control", id = "userInput", placeholder = "Username" })
-                                            @* <input type="text" class="form-control" id="userInput" placeholder="Username"> *@
-                                        </div>
-                                        <div class="col m-2">
-                                            @Html.TextBoxFor(t => t.Group, new { @class = "form-control", id = "groupInput", placeholder = "Group code" })
-                                            @* <input type="text" class="form-control" id="groupInput" placeholder="Group code"> *@
-                                        </div>
-                                        <div class="col m-2">
-                                            <input type="submit" class="btn btn-primary" id="joinGroupButton" value="Join"/>
-                                        </div>
-                                    }
+                                    <input type="text" id="passwordInput"/>
+                                    <button class="btn btn-primary my-3" id="createButton">New Game</button>
                                 </div>
                             </div>
                         </div>
@@ -38,85 +26,5 @@
     </section>
 </div>
 
-<div id="game" class="hide">
-    <div class="container">
-        <div class="row p-1">
-            <div class="col-1">Message</div>
-            <div class="col-5">
-                <input type="text" class="w-100" id="messageInput"/>
-            </div>
-        </div>
-        <div class="row p-1">
-            <div class="col-6 text-end">
-                <input type="button" id="sendButton" value="Send Message"/>
-            </div>
-        </div>
-        <div class="row p-1">
-            <div class="col-6">
-                <hr/>
-            </div>
-        </div>
-        <div class="row p-1">
-            <div class="col-6">
-                <ul id="messagesList"></ul>
-            </div>
-        </div>
-    </div>
-    @* <script src="~/js/signalr/dist/browser/signalr.js"></script> *@
-    @* <script src="~/js/game.js"></script> *@
-</div>
-
-
-@* <div class="container"> *@
-@*     <div class="form-row"> *@
-@*         <div class="col"> *@
-@*             <input type="text" class="form-control" id="groupInput" placeholder="Group code"> *@
-@*         </div> *@
-@*         <div class="col"> *@
-@*             <input type="button" class="btn btn-primary" id="joinGroupButton" value="Join"/> *@
-@*         </div> *@
-@*     </div> *@
-@* </div> *@
-
-@* <div class="container"> *@
-@*     <div class="col-1">Group</div> *@
-@*     <div class="col-5"> *@
-@*         <input type="text" class="w-100" id="groupInput"/> *@
-@*     </div> *@
-@*     <div class="row p-1"> *@
-@*         <div class="col-6 text-end"> *@
-@*             <input type="button" id="joinGroupButton" value="Join group"/> *@
-@*         </div> *@
-@*     </div> *@
-@* </div> *@
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/lobby.js"></script>
-
-
-@* <section class="h-100"> *@
-@*     <div class="mask d-flex align-items-center h-100"> *@
-@*         <div class="container h-100"> *@
-@*             <div class="row d-flex justify-content-center align-items-center h-100"> *@
-@*                 <div class="card"> *@
-@*                     <div class="card-body p-5"> *@
-@*                         <div class="container"> *@
-@*                             <div class="row row-cols-10"> *@
-@*                                 @{ *@
-@*                                     for (var i = 0; i < 10; i++) *@
-@*                                     { *@
-@*                                         for (var j = 0; j < 10; j++) *@
-@*                                         { *@
-@*                                             <div class="col">col</div> *@
-@*                                             $1$ <div class="w-100"></div> #1# *@
-@*                                         } *@
-@*                                         <div class="w-100"></div> *@
-@*                                     } *@
-@*                                 } *@
-@*                             </div> *@
-@*                         </div> *@
-@*                     </div> *@
-@*                 </div> *@
-@*             </div> *@
-@*         </div> *@
-@*     </div> *@
-@* </section> *@
