@@ -88,6 +88,8 @@ class GDPR {
 
 const gdpr = new GDPR();
 
+//Todo: captcha check in new file
+
 let captcha;
 
 let uniquechar = "";
