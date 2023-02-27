@@ -15,6 +15,18 @@ public class GameHub : Hub
         await base.OnConnectedAsync();
     }
 
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        var user = _users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+        if (user == null)
+            return;
+
+        _users.Remove(user);
+
+        await base.OnDisconnectedAsync(exception);
+    }
+
+
     public async Task AddUser(string name)
     {
         UserModel user;
@@ -39,7 +51,7 @@ public class GameHub : Hub
         await base.OnConnectedAsync();
     }
 
-    public async Task JoinGame(string id, string password)
+    public async Task CreateGame(string password)
     {
         var user = _users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
         if (user is null)
@@ -48,29 +60,50 @@ public class GameHub : Hub
             return;
         }
 
+        var gameSetup = new GameSetup
+        {
+            Id = GetRandomId(),
+            Password = password
+        };
+        var game = new GameManager(gameSetup);
+        Console.WriteLine("game created with id: " + game.GameSetup.Id);
+        _games.Add(game);
+        game.Players.Add(user);
+
+        //Debugging
+        Console.WriteLine("Available games: ");
+        foreach (var gameManager in _games) Console.WriteLine("----->" + gameManager.GameSetup.Id);
+
+        await Clients.Caller.SendAsync("CreatedGame", game.GameSetup.Id);
+    }
+
+    public async Task JoinGame(string id, string password)
+    {
+        var user = _users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+        if (user is null)
+        {
+            Console.WriteLine("Unknown user");
+            await Clients.Caller.SendAsync("ErrorOnJoinGame", "Unknown user");
+        }
+
         var game = _games.FirstOrDefault(x => x.GameSetup.Id == id);
+        //Check if game exists
         if (game == null)
         {
-            var gameSetup = new GameSetup
+            await Clients.Caller.SendAsync("ErrorOnJoinGame", "Game does not exist");
+            return;
+        }
+
+        //Check if password is correct
+        if (!string.IsNullOrEmpty(game.GameSetup.Password))
+            if (game.GameSetup.Password != password)
             {
-                Id = id,
-                Password = password
-            };
-            game = new GameManager(gameSetup);
-            Console.WriteLine("game created with id: " + game.GameSetup.Id);
-            _games.Add(game);
-        }
-        else
-        {
-            if (!string.IsNullOrEmpty(game.GameSetup.Password))
-                if (game.GameSetup.Password != password)
-                    return;
-            Console.WriteLine("game joined with id: " + game.GameSetup.Id);
-        }
+                await Clients.Caller.SendAsync("ErrorOnJoinGame", "Incorrect password");
+                return;
+            }
 
+        Console.WriteLine("game joined with id: " + game.GameSetup.Id);
         game.Players.Add(user);
-        // await Groups.AddToGroupAsync(Context.ConnectionId, id);
-
 
         //Debugging
         Console.WriteLine("Available games: ");
@@ -88,6 +121,15 @@ public class GameHub : Hub
         allPlayersInTheGame.ForEach(Console.WriteLine);
         // await Clients.Group(gameId).SendAsync("ReceiveMessage", msg);
         await Clients.Clients(allPlayersInTheGame).SendAsync("ReceiveMessage", msg);
+    }
+
+    private string GetRandomId()
+    {
+        var random = new Random();
+        var randomId = random.Next(0, 999999).ToString("D6");
+        while (_games.Any(x => x.GameSetup.Id == randomId))
+            randomId = random.Next(0, 999999).ToString("D6");
+        return randomId;
     }
 
     private List<string> GetPlayersFromGame(GameManager game)

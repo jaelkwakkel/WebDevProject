@@ -20,19 +20,35 @@ connection.start().then(function () {
     const password = document.getElementById("pwInput").value;
     const id = document.getElementById("idInput").value;
     localStorage.setItem('gameId', id);
-    connection.invoke('JoinGame', id, password)
-        .catch(err => {
-                console.log(err);
-            }
-        );
+
+    if (id === "") {
+        connection.invoke('CreateGame', password)
+            .catch(err => {
+                    console.log(err);
+                }
+            );
+    } else {
+        document.getElementById("gameIdHeader").innerHTML = id;
+        connection.invoke('JoinGame', id, password)
+            .catch(err => {
+                    console.log(err);
+                }
+            );
+    }
 
     document.getElementById("sendButton").disabled = false;
 }).catch(function (err) {
     return console.error(err.toString());
 });
 
-connection.on('JoinedGame', () => {
-    console.log("Joined game!");
+connection.on('createdGame', (id) => {
+    console.log("Created game with id: " + id);
+    document.getElementById("idInput").value = id;
+    document.getElementById("gameIdHeader").innerHTML = id;
+});
+
+connection.on('ErrorOnJoinGame', (message) => {
+    console.log("Could not join game. Error: " + message);
 });
 
 document.getElementById("sendButton").addEventListener("click", function (event) {

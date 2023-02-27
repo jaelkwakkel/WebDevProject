@@ -2,38 +2,108 @@
 
 @{
     ViewBag.Title = "title";
-    Layout = "_Layout";
+    Layout = "_layout";
 }
 
-<div id="lobby">
-    <section class="h-100">
-        <div class="mask d-flex align-items-center h-100">
-            <div class="container h-100">
-                <div class="row d-flex justify-content-center align-items-center h-100">
-                    <div class="card">
-                        <div class="card-body p-5">
-                            <div class="container">
-                                <div class="form-row d-flex justify-content-center align-items-center">
-                                    @using (Html.BeginForm("Play", "Game"))
-                                    {
-                                        @Html.LabelFor(t => t.Id)
-                                        @Html.TextBoxFor(t => t.Id, new { placeholder = "id" })
-                                        @Html.LabelFor(t => t.Password)
-                                        @Html.TextBoxFor(t => t.Password, new { placeholder = "pw" })
-                                        @* <input type="text" id="passwordInput" placeholder="pw"/> *@
-                                        @* <input type="text" id="idInput" placeholder="id"/> *@
-                                        <input type="submit" class="btn btn-primary" content="Join"/>
-                                        @* <button class="btn btn-primary" id="joinButton">Join Game</button> *@
-                                    }
-                                </div>
+<!-- Modal -->
+<div class="modal fade" id="createGameModal" tabindex="-1" role="dialog" aria-labelledby="createGameModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGameModalLabel">Create new game</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Play", "Game"))
+            {
+                <div class="modal-body">
+                    @* @Html.LabelFor(t => t.Id) *@
+                    @* @Html.TextBoxFor(t => t.Id, new { placeholder = "id" }) *@
+                    Options will be here
+                    @Html.LabelFor(t => t.Password)
+                    @Html.TextBoxFor(t => t.Password, new { placeholder = "pw" })
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary" value="Create"/>
+                    @* <button type="button" class="btn btn-primary">Save changes</button> *@
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="joinGameModal" tabindex="-1" role="dialog" aria-labelledby="joinGameModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="joinGameModalLabel">Create new game</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Play", "Game"))
+            {
+                <div class="modal-body">
+                    @Html.LabelFor(t => t.Id)
+                    @Html.TextBoxFor(t => t.Id, new { placeholder = "XXXXXX" })
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary" value="Join"/>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script src="lib/bootstrap/dist/js/bootstrap.min.js"></script>
+
+@* *@
+@* <div class="modal fade bd-example-modal-lg" id="createGameModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true"> *@
+@*     <div class="modal-dialog modal-lg"> *@
+@*         <div class="modal-content"> *@
+@*             @using (Html.BeginForm("Play", "Game")) *@
+@*             { *@
+@*                 @Html.LabelFor(t => t.Id) *@
+@*                 @Html.TextBoxFor(t => t.Id, new { placeholder = "id" }) *@
+@*                 @Html.LabelFor(t => t.Password) *@
+@*                 @Html.TextBoxFor(t => t.Password, new { placeholder = "pw" }) *@
+@*                                         $1$ <input type="text" id="passwordInput" placeholder="pw"/> #1# *@
+@*                                         $1$ <input type="text" id="idInput" placeholder="id"/> #1# *@
+@*                 <input type="submit" class="btn btn-primary" content="Join"/> *@
+@*                                         $1$ <button class="btn btn-primary" id="joinButton">Join Game</button> #1# *@
+@*             } *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+@* *@
+@* <div id="lobby"> *@
+<section class="h-100">
+    <div class="mask d-flex align-items-center h-100">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <div class="container">
+                            <div class="form-row d-flex justify-content-center align-items-center">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGameModal">
+                                    Create
+                                </button>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinGameModal">
+                                    Join
+                                </button>
+                                @* <button class="btn btn-primary" id="joinButton">Join Game</button> *@
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-</div>
+    </div>
+</section>
+@* </div> *@
 
 @* <script src="~/js/signalr/dist/browser/signalr.js"></script> *@
-@* <script src="~/js/lobby.js"></script> *@
+<script src="~/js/gamecreate.js"></script>
