@@ -49,6 +49,8 @@ connection.on('createdGame', (id) => {
 
 connection.on('ErrorOnJoinGame', (message) => {
     console.log("Could not join game. Error: " + message);
+    localStorage.setItem('joinError', message);
+    location.href = "/game/"; //'/sometest.html?myid=5';
 });
 
 document.getElementById("sendButton").addEventListener("click", function (event) {

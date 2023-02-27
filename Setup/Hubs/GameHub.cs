@@ -29,7 +29,6 @@ public class GameHub : Hub
 
     public async Task AddUser(string name)
     {
-        UserModel user;
         lock (_users)
         {
             name = Regex.Replace(name, @"\s+", "").ToLower();
@@ -44,7 +43,7 @@ public class GameHub : Hub
                 name = name + rnd.Next(1, 100);
             }
 
-            user = new UserModel(Context.ConnectionId, name);
+            var user = new UserModel(Context.ConnectionId, name);
             _users.Add(user);
         }
 
@@ -82,15 +81,15 @@ public class GameHub : Hub
         var user = _users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
         if (user is null)
         {
-            Console.WriteLine("Unknown user");
-            await Clients.Caller.SendAsync("ErrorOnJoinGame", "Unknown user");
+            await ErrorOnJoinGame("Unknown user");
+            return;
         }
 
         var game = _games.FirstOrDefault(x => x.GameSetup.Id == id);
         //Check if game exists
         if (game == null)
         {
-            await Clients.Caller.SendAsync("ErrorOnJoinGame", "Game does not exist");
+            await ErrorOnJoinGame("Game does not exist");
             return;
         }
 
@@ -98,7 +97,7 @@ public class GameHub : Hub
         if (!string.IsNullOrEmpty(game.GameSetup.Password))
             if (game.GameSetup.Password != password)
             {
-                await Clients.Caller.SendAsync("ErrorOnJoinGame", "Incorrect password");
+                await ErrorOnJoinGame("Incorrect password");
                 return;
             }
 
@@ -110,6 +109,12 @@ public class GameHub : Hub
         foreach (var gameManager in _games) Console.WriteLine("----->" + gameManager.GameSetup.Id);
 
         await Clients.Caller.SendAsync("JoinedGame");
+    }
+
+    private async Task ErrorOnJoinGame(string errorMessage)
+    {
+        Console.WriteLine("ErrorOnJoinGame: " + errorMessage);
+        await Clients.Caller.SendAsync("ErrorOnJoinGame", errorMessage);
     }
 
     public async Task SendMessage(string msg, string gameId)
