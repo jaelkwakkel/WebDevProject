@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Setup.Models;
 
 namespace Setup.Controllers;
 
 public class GameController : Controller
 {
-    private const string UserId = "UserGroup";
+    // private const string UserId = "UserGroup";
 
     // GET
     public IActionResult Index()
@@ -12,9 +13,17 @@ public class GameController : Controller
         return View();
     }
 
+    //POST
+    [HttpPost]
+    public IActionResult Play(GameSetup setup)
+    {
+        return View(setup);
+    }
+
+    //GET
     public IActionResult Play()
     {
-        return View();
+        return Redirect("/game/");
     }
 
     // //POST

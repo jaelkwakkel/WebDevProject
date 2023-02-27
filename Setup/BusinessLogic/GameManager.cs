@@ -34,8 +34,8 @@ public class GameManager
 
     public bool StartGame()
     {
-        if (Players.Count != GameSetup.ExpectedNumberOfPlayers)
-            return false;
+        // if (Players.Count != GameSetup.ExpectedNumberOfPlayers)
+        //     return false;
         GameStarted = true;
         InitializeNewGame();
         return true;

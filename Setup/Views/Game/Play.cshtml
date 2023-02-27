@@ -1,9 +1,14 @@
-﻿@* @model TModel *@
+﻿@model GameSetup
 
 @{
     ViewBag.Title = "Play";
     Layout = "_Layout";
 }
+
+<div class="hide">
+    @Html.TextBoxFor(t => t.Id, new { id = "idInput", @class = "hide" })
+    @Html.TextBoxFor(t => t.Password, new { id = "pwInput", @class = "hide" })
+</div>
 
 <div class="container">
     <div class="row p-1">
@@ -28,5 +33,6 @@
         </div>
     </div>
 </div>
+
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
-<script src="~/js/game.js"></script>
+<script src="~/js/lobby.js"></script>

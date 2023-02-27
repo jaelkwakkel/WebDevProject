@@ -1,4 +1,4 @@
-﻿@model LobbyModel
+﻿@model GameSetup
 
 @{
     ViewBag.Title = "title";
@@ -14,8 +14,17 @@
                         <div class="card-body p-5">
                             <div class="container">
                                 <div class="form-row d-flex justify-content-center align-items-center">
-                                    <input type="text" id="passwordInput"/>
-                                    <button class="btn btn-primary my-3" id="createButton">New Game</button>
+                                    @using (Html.BeginForm("Play", "Game"))
+                                    {
+                                        @Html.LabelFor(t => t.Id)
+                                        @Html.TextBoxFor(t => t.Id, new { placeholder = "id" })
+                                        @Html.LabelFor(t => t.Password)
+                                        @Html.TextBoxFor(t => t.Password, new { placeholder = "pw" })
+                                        @* <input type="text" id="passwordInput" placeholder="pw"/> *@
+                                        @* <input type="text" id="idInput" placeholder="id"/> *@
+                                        <input type="submit" class="btn btn-primary" content="Join"/>
+                                        @* <button class="btn btn-primary" id="joinButton">Join Game</button> *@
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -26,5 +35,5 @@
     </section>
 </div>
 
-<script src="~/js/signalr/dist/browser/signalr.js"></script>
-<script src="~/js/lobby.js"></script>
+@* <script src="~/js/signalr/dist/browser/signalr.js"></script> *@
+@* <script src="~/js/lobby.js"></script> *@

@@ -2,10 +2,12 @@
 
 const connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 
-document.getElementById("createButton").disabled = true;
+document.getElementById("sendButton").disabled = true;
+// document.getElementById("joinButton").disabled = true;
 
 connection.start().then(function () {
-
+    // let name;
+    //For debugging
     let name = "test";
     do {
         name = localStorage.getItem('name') || prompt('Input your name');
@@ -14,33 +16,53 @@ connection.start().then(function () {
     connection.invoke('AddUser', name).catch(err => {
         console.log(err)
     });
-    connection.invoke('UpdateAllGames').catch(err => {
-        console.log(err)
-    });
 
-    document.getElementById("createButton").disabled = false;
-}).catch(function (err) {
-    return console.error(err.toString());
-});
-
-document.getElementById("createButton").addEventListener("click", function (event) {
-    const password = document.getElementById("passwordInput").value;
-    connection.invoke("CreateGame", 2, password)
+    const password = document.getElementById("pwInput").value;
+    const id = document.getElementById("idInput").value;
+    localStorage.setItem('gameId', id);
+    connection.invoke('JoinGame', id, password)
         .catch(err => {
                 console.log(err);
             }
         );
+
+    document.getElementById("sendButton").disabled = false;
+}).catch(function (err) {
+    return console.error(err.toString());
+});
+
+connection.on('JoinedGame', () => {
+    console.log("Joined game!");
+});
+
+document.getElementById("sendButton").addEventListener("click", function (event) {
+    const message = document.getElementById("messageInput").value;
+    const id = document.getElementById("idInput").value;
+    connection.invoke("SendMessage", message, id).catch(function (err) {
+        return console.error(err.toString());
+    });
     event.preventDefault();
 });
 
-connection.on('GameUpdate', (game) => {
-    if (game.GameStarted) {
-        if (location.href !== '/game/play') {
-            location.href = '/game/play';
-        }
-    } else {
-        if (location.href !== '/game/play#') {
-            location.href = '/game/play#';
-        }
-    }
+connection.on("ReceiveMessage", function (message) {
+    console.log("Received" + message)
+    const li = document.createElement("li");
+    document.getElementById("messagesList").appendChild(li);
+    // We can assign user-supplied strings to an element's textContent because it
+    // is not interpreted as markup. If you're assigning in any other way, you 
+    // should be aware of possible script injection concerns.
+    li.textContent = `${message}`;
 });
+
+
+// document.getElementById("joinButton").addEventListener("click", function (event) {
+//     const password = document.getElementById("passwordInput").value;
+//     const id = document.getElementById("idInput").value;
+//     localStorage.setItem('gameId', id);
+//     connection.invoke('JoinGame', id, password)
+//         .catch(err => {
+//                 console.log(err);
+//             }
+//         );
+//     event.preventDefault();
+// });
