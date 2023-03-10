@@ -24,6 +24,8 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="wwwroot\js\game-setup\game-setup.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\js\signalr\dist\browser\signalr.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\js\signalr\dist\browser\signalr.min.js" />
   </ItemGroup>
 
 </Project>

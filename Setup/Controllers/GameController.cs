@@ -60,16 +60,16 @@ public class GameController : Controller
     //     // Response.Cookies.Add(myCookie);
     // }
 
-    public string GetBoard()
-    {
-        var board = "";
-        for (var i = 0; i < 10; i++)
-        {
-            board += "<div class='row'>";
-            for (var j = 0; j < 10; j++) board += "<div class='col'>Column</div>";
-            board += "</div>";
-        }
-
-        return board;
-    }
+    // public string GetBoard()
+    // {
+    //     var board = "";
+    //     for (var i = 0; i < 10; i++)
+    //     {
+    //         board += "<div class='row'>";
+    //         for (var j = 0; j < 10; j++) board += "<div class='col'>Column</div>";
+    //         board += "</div>";
+    //     }
+    //
+    //     return board;
+    // }
 }

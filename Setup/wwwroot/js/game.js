@@ -1,33 +1,35 @@
-﻿// "use strict";
-//
-// let errorMessage = localStorage.getItem('joinError')
-//
-// if (errorMessage.length > 0) {
-//     //TaODO: Prevent possible xss/injection
-//     document.getElementById("joinErrorMessage").innerHTML = errorMessage;
-//     localStorage.setItem('joinError', "");
-//     document.getElementById('joinGameModal').show();
-// }
+﻿"use strict";
 
-"use strict";
+//SETUP CONNECTION
+const connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 
-//GAME_CONSTANTS
+connection.start().catch(function (err) {
+    return console.error(err.toString());
+});
+
+
+connection.on('UpdateBoard', (board) => {
+    updateGame(board);
+    updateGraphics();
+});
+
+//SETUP GAME CONSTANTS
 const gridSize = 10;
-
 const buildingType = Object.freeze({
-    grass: Symbol("grass"),
-    street: Symbol("street"),
-    house: Symbol("house"),
-    farm: Symbol("farm"),
-    cinema: Symbol("cinema"),
-    energy_small: Symbol("energy_small"),
-    energy_large: Symbol("energy_large"),
-    school: Symbol("school"),
-    factory: Symbol("factory")
+    grass: "grass",
+    street: "street",
+    house: "house",
+    farm: "farm",
+    cinema: "cinema",
+    energy_small: "energy_small",
+    energy_large: "energy_large",
+    school: "school",
+    factory: "factory"
 });
 
 const loadedImages = {};
 
+//DEFINE CLASSES
 class GridCell {
     buildingType;
     owner;
@@ -36,26 +38,34 @@ class GridCell {
         this.buildingType = buildingType.grass;
     }
 
-    placeBuilding(owner, buildingType) {
-        this.buildingType = buildingType;
-        this.owner = owner;
-        updateGraphics();
-    }
+    // placeBuilding(owner, buildingType) {
+    //     this.buildingType = buildingType;
+    //     this.owner = owner;
+    //     connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
+    //         .catch(err => {
+    //                 console.log(err);
+    //             }
+    //         );
+    //     updateGraphics();
+    // }
 }
 
-class BuildingButton extends HTMLElement {
-    shadowRoot;
+//TODO: S: Create and use webcomponent
 
-    constructor(name) {
-        super();
-        this.shadowRoot = this.attachShadow({mode: 'open'});
-        const button = document.createElement('button');
-        button.setAttribute('class', 'list-group-item');
-        button.setAttribute('class', 'list-group-item-action');
-        button.innerHTML = name;
-        this.shadowRoot.appendChild(button);
-    }
-}
+// class BuildingButton extends HTMLElement {
+//     shadowRoot;
+//
+//     constructor(name) {
+//         super();
+//         this.shadowRoot = this.attachShadow({mode: 'open'});
+//         const button = document.createElement('button');
+//         button.setAttribute('class', 'list-group-item');
+//         button.setAttribute('class', 'list-group-item-action');
+//         button.innerHTML = name;
+//         this.shadowRoot.appendChild(button);
+//     }
+// }
+// customElements.define('building-button', BuildingButton);
 
 function preloadImage(url) {
     let a = new Image()
@@ -63,10 +73,12 @@ function preloadImage(url) {
     a.onload = () => loadedImages[url] = a;
 }
 
-preloadImage("/Images/House.png");
+//Preload tiles
+for (let item in buildingType) {
+    if (item === buildingType.grass) continue;
+    preloadImage("/Images/" + item + ".png");
+}
 preloadImage("/Images/PlayingGrid.gif");
-
-customElements.define('building-button', BuildingButton);
 
 let gameBoard = createGameBoard(10, 10);
 let currentlySelected = buildingType.street;
@@ -88,6 +100,7 @@ function selectedBuilding(event) {
 function createButtons() {
     const gameList = document.getElementById("buildingSelectList");
     for (let item in buildingType) {
+        if (item === buildingType.grass) continue;
         const button = document.createElement('button');
         button.setAttribute('class', 'list-group-item list-group-item-action align-middle');
         button.addEventListener("click", selectedBuilding);
@@ -160,7 +173,14 @@ function onMouseDown() {
     if (gridPos.x < 0 || gridPos.y < 0) {
         return;
     }
-    gameBoard[gridPos.x][gridPos.y].placeBuilding(1, currentlySelected);
+    gameBoard[gridPos.x][gridPos.y].buildingType = currentlySelected;
+    gameBoard[gridPos.x][gridPos.y].owner = 1;
+    connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
+        .catch(err => {
+                console.log(err);
+            }
+        );
+    updateGraphics();
 }
 
 const clamp = (number, min, max) =>
@@ -204,42 +224,14 @@ function drawBuildings() {
     for (let i = 0; i < gameBoard.length; i++) {
         for (let j = 0; j < gameBoard[i].length; j++) {
             let gridCoordinate = gridCellToCoordinate({x: i, y: j});
-
+            //Skip grass tiles when drawing
+            if (gameBoard[i][j].buildingType === buildingType.grass) continue;
             context.drawImage(loadedImages["/Images/" + gameBoard[i][j].buildingType + ".png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
-
-            // switch (gameBoard[i][j].buildingType) {
-            //     case buildingType.grass:
-            //         break;
-            //     case buildingType.street:
-            //         context.drawImage(loadedImages["/Images/House.png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
-            //         break;
-            //     case buildingType.house:
-            //         context.drawImage(loadedImages["/Images/House.png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
-            //         break;
-            //     case buildingType.farm:
-            //         context.drawImage(loadedImages["/Images/House.png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
-            //         break;
-            //     case buildingType.cinema:
-            //         context.drawImage(loadedImages["/Images/House.png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
-            //         break;
-            //     case buildingType.energy_small:
-            //         context.drawImage(loadedImages["/Images/House.png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
-            //         break;
-            //     case buildingType.energy_large:
-            //         context.drawImage(loadedImages["/Images/House.png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
-            //         break;
-            //     case buildingType.school:
-            //         context.drawImage(loadedImages["/Images/House.png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
-            //         break;
-            //     case buildingType.factory:
-            //         context.drawImage(loadedImages["/Images/House.png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
-            //         break;
-            // }
         }
     }
 }
 
-// game loop
+//game loop
 function updateGraphics() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -248,6 +240,10 @@ function updateGraphics() {
     let gridCoordinate = gridCellToCoordinate(mousePosToGridCell(mousePos));
     //TODO: C: Make gif move
     context.drawImage(loadedImages["/Images/PlayingGrid.gif"], gridCoordinate.x, gridCoordinate.y, grid, grid);
+}
+
+function updateGame(board) {
+    gameBoard = JSON.parse(board);
 }
 
 //DEBUG-FUNCTIONS

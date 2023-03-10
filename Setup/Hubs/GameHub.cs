@@ -27,6 +27,12 @@ public class GameHub : Hub
     }
 
 
+    public async Task ChangedBoard(string gameBoard)
+    {
+        Console.WriteLine("Received ChangedBoard");
+        await Clients.All.SendAsync("UpdateBoard", gameBoard);
+    }
+
     public async Task AddUser(string name)
     {
         lock (_users)

@@ -5,16 +5,14 @@
     Layout = "_Layout";
 }
 
-<link rel="preload" as="image" href="/Images/House.png">
-
 <link rel="stylesheet" href="~/css/gamelayout.css"/>
+
 <div class="hide">
     @Html.TextBoxFor(t => t.Id, new { id = "idInput", @class = "hide" })
     @Html.TextBoxFor(t => t.Password, new { id = "pwInput", @class = "hide" })
 </div>
 
 <div class="container text-center">
-
     <h3 id="gameIdHeader" class="card-title">XXXXXX</h3>
     <div class="row">
         <div class="col-md-4 col-sm-12">
@@ -28,30 +26,7 @@
             </div>
         </div>
     </div>
-
-    @* <div class="row p-1"> *@
-    @*     <div class="col-1">Message</div> *@
-    @*     <div class="col-5"> *@
-    @*         <input type="text" class="w-100" id="messageInput"/> *@
-    @*     </div> *@
-    @* </div> *@
-    @* <div class="row p-1"> *@
-    @*     <div class="col-6 text-end"> *@
-    @*         <input type="button" id="sendButton" value="Send Message"/> *@
-    @*     </div> *@
-    @* </div> *@
-    @* <div class="row p-1"> *@
-    @*     <div class="col-6"> *@
-    @*         <hr/> *@
-    @*     </div> *@
-    @* </div> *@
-    @* <div class="row p-1"> *@
-    @*     <div class="col-6"> *@
-    @*         <ul id="messagesList"></ul> *@
-    @*     </div> *@
-    @* </div> *@
 </div>
 
-<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/game.js"></script>
-@* <script src="~/js/lobby.js"></script> *@
