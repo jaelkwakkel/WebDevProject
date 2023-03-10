@@ -2,7 +2,7 @@
 
 const connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 
-document.getElementById("sendButton").disabled = true;
+// document.getElementById("sendButton").disabled = true;
 // document.getElementById("joinButton").disabled = true;
 
 connection.start().then(function () {
@@ -36,7 +36,7 @@ connection.start().then(function () {
             );
     }
 
-    document.getElementById("sendButton").disabled = false;
+    // document.getElementById("sendButton").disabled = false;
 }).catch(function (err) {
     return console.error(err.toString());
 });
@@ -53,14 +53,14 @@ connection.on('ErrorOnJoinGame', (message) => {
     location.href = "/game/"; //'/sometest.html?myid=5';
 });
 
-document.getElementById("sendButton").addEventListener("click", function (event) {
-    const message = document.getElementById("messageInput").value;
-    const id = document.getElementById("idInput").value;
-    connection.invoke("SendMessage", message, id).catch(function (err) {
-        return console.error(err.toString());
-    });
-    event.preventDefault();
-});
+// document.getElementById("sendButton").addEventListener("click", function (event) {
+//     const message = document.getElementById("messageInput").value;
+//     const id = document.getElementById("idInput").value;
+//     connection.invoke("SendMessage", message, id).catch(function (err) {
+//         return console.error(err.toString());
+//     });
+//     event.preventDefault();
+// });
 
 connection.on("ReceiveMessage", function (message) {
     console.log("Received" + message)

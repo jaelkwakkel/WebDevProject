@@ -5,6 +5,8 @@
     Layout = "_Layout";
 }
 
+<link rel="preload" as="image" href="/Images/House.png">
+
 <link rel="stylesheet" href="~/css/gamelayout.css"/>
 <div class="hide">
     @Html.TextBoxFor(t => t.Id, new { id = "idInput", @class = "hide" })
@@ -12,10 +14,21 @@
 </div>
 
 <div class="container text-center">
+
     <h3 id="gameIdHeader" class="card-title">XXXXXX</h3>
-    <div class="gameContainer">
-        <canvas id="game"></canvas>
+    <div class="row">
+        <div class="col-md-4 col-sm-12">
+            <div class="list-group align-content-center" id="buildingSelectList">
+                @* Buttons will be generated here *@
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-12">
+            <div class="gameContainer">
+                <canvas id="game"></canvas>
+            </div>
+        </div>
     </div>
+
     @* <div class="row p-1"> *@
     @*     <div class="col-1">Message</div> *@
     @*     <div class="col-5"> *@
@@ -41,3 +54,4 @@
 
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/game.js"></script>
+@* <script src="~/js/lobby.js"></script> *@
