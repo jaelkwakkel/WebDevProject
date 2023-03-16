@@ -37,7 +37,7 @@ public class GameHub : Hub
         var game = Games.FirstOrDefault(g => g.Key == sanitizedKey);
         if (game == null)
         {
-            game = new GameGroup { Key = sanitizedKey, Owner = user };
+            game = new GameGroup(sanitizedKey, user); // { Key = sanitizedKey, Owner = user };
             Games.Add(game);
         }
 
@@ -69,16 +69,32 @@ public class GameHub : Hub
         }
     }
 
-    public async Task MakeMove()
+    public async Task PlacedBuilding(string x, string y, string buildingString)
     {
         var game = Games.FirstOrDefault(g =>
             g is { HasFinished: false, HasStarted: true } &&
             g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
-        if (game != null)
+        if (game is null) return;
+
+        if (!int.TryParse(x, out var xInt) || !int.TryParse(y, out var yInt))
         {
-            //Find user
-            var user = game.Users.First(g => g.ConnectionId == Context.ConnectionId);
+            await Clients.Caller.SendAsync("GamePlayError", "Selected grid location does not exist");
+            return;
         }
+
+        //Check if it is current user's turn to play
+        if (Users.FirstOrDefault(userModel => userModel.ConnectionId == Context.ConnectionId) != game.UserTurn)
+        {
+            //TODO: M: What on not user turn?
+        }
+
+        var buildingType = game.StringToBuildingType(buildingString);
+
+        game.TryPlaceBuilding(xInt, yInt, buildingType);
+        // game.
+
+        //Find user
+        // var user = game.Users.First(g => g.ConnectionId == Context.ConnectionId);
         //TODO: M: Do move logic
         // glass.Value--;
         // if (glass.Value <= 0)
@@ -92,20 +108,16 @@ public class GameHub : Hub
         // if (group.HasFinished) _groups.Remove(group);
     }
 
-    public async Task ChangedBoard(string gameBoard)
-    {
-        Console.WriteLine("Received ChangedBoard");
-        var game = Games.FirstOrDefault(g =>
-            g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
-        if (game != null)
-        {
-            await Clients.Group(game.Key).SendAsync("UpdateBoard", gameBoard);
-            //Find user
-            // var user = game.Users.First(g => g.ConnectionId == Context.ConnectionId);
-        }
-
-        // await Clients.All.SendAsync("UpdateBoard", gameBoard);
-    }
+    // public async Task ChangedBoard(string gameBoard)
+    // {
+    //     Console.WriteLine("Received ChangedBoard");
+    //     var game = Games.FirstOrDefault(g =>
+    //         g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
+    //     if (game != null) await Clients.Group(game.Key).SendAsync("UpdateBoard", gameBoard);
+    //     //Find user
+    //     // var user = game.Users.First(g => g.ConnectionId == Context.ConnectionId);
+    //     // await Clients.All.SendAsync("UpdateBoard", gameBoard);
+    // }
 }
 
 // public override async Task OnDisconnectedAsync(Exception? exception)
@@ -163,7 +175,7 @@ public class GameHub : Hub
 //             Id = GetRandomId(),
 //             Password = password
 //         };
-//         var game = new GameManager(gameSetup);
+//         var game = new GameLogic(gameSetup);
 //         Console.WriteLine("game created with id: " + game.GameSetup.Id);
 //         _games.Add(game);
 //         game.Players.Add(user);
@@ -236,7 +248,7 @@ public class GameHub : Hub
 //         return randomId;
 //     }
 //
-//     private List<string> GetPlayersFromGame(GameManager game)
+//     private List<string> GetPlayersFromGame(GameLogic game)
 //     {
 //         return game.Players.Where(x => !x.LeftGame).Select(y => y.ConnectionId).ToList();
 //     }
@@ -251,7 +263,7 @@ public class GameHub : Hub
 //
 // public class GameHub : Hub
 // {
-//     private static readonly List<GameManager> _games = new();
+//     private static readonly List<GameLogic> _games = new();
 //
 //     private static readonly List<UserModel> _users = new();
 //
@@ -316,7 +328,7 @@ public class GameHub : Hub
 //         var user = _users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
 //         var gameSetup = new GameSetup(expectedNumberOfPlayers, id, password);
 //
-//         var game = new GameManager(gameSetup);
+//         var game = new GameLogic(gameSetup);
 //         game.Players.Add(user);
 //         _games.Add(game);
 //
@@ -493,7 +505,7 @@ public class GameHub : Hub
 //
 //     // -------------------------------private--------------------
 //
-//     private async Task GameUpdated(GameManager game)
+//     private async Task GameUpdated(GameLogic game)
 //     {
 //         var allPlayersInTheGame = GetPlayersFromGame(game);
 //
@@ -505,7 +517,7 @@ public class GameHub : Hub
 //     }
 //
 //
-//     private List<string> GetPlayersFromGame(GameManager game)
+//     private List<string> GetPlayersFromGame(GameLogic game)
 //     {
 //         return game.Players.Where(x => !x.LeftGame).Select(y => y.ConnectionId).ToList();
 //     }
