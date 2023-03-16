@@ -1,6 +1,6 @@
 ﻿#game {
-    /*background-image: url(../Images/PlayingGrid.png);*/
-    background-image: url(../Images/grid.png);
+    background-image: url(../Images/PlayingGrid.png);
+    /*background-image: url(../Images/grid.png);*/
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;

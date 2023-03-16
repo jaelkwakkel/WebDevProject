@@ -91,6 +91,21 @@ public class GameHub : Hub
         // await BroadcastGroup(group);
         // if (group.HasFinished) _groups.Remove(group);
     }
+
+    public async Task ChangedBoard(string gameBoard)
+    {
+        Console.WriteLine("Received ChangedBoard");
+        var game = Games.FirstOrDefault(g =>
+            g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
+        if (game != null)
+        {
+            await Clients.Group(game.Key).SendAsync("UpdateBoard", gameBoard);
+            //Find user
+            // var user = game.Users.First(g => g.ConnectionId == Context.ConnectionId);
+        }
+
+        // await Clients.All.SendAsync("UpdateBoard", gameBoard);
+    }
 }
 
 // public override async Task OnDisconnectedAsync(Exception? exception)
@@ -112,12 +127,6 @@ public class GameHub : Hub
 //     _users.RemoveAll(x => x.ConnectionId == Context.ConnectionId);
 //     // glasses.Remove(Context.ConnectionId);
 //     await base.OnDisconnectedAsync(exception);
-// }
-
-// public async Task ChangedBoard(string gameBoard)
-// {
-//     Console.WriteLine("Received ChangedBoard");
-//     await Clients.All.SendAsync("UpdateBoard", gameBoard);
 // }
 //
 // public async Task PlacedTile(int xPosition)

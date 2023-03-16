@@ -34,17 +34,33 @@
 
 <div class="container text-center">
     <h3 id="gameIdHeader" class="card-title">XXXXXX</h3>
-    @* <div class="col-md-4 col-sm-12"> *@
-    @*     <div class="list-group align-content-center" id="buildingSelectList"> *@
-    @*         $1$ Buttons will be generated here #1# *@
-    @*     </div> *@
-    @* </div> *@
-    @* <div class="col-md-8 col-sm-12"> *@
-    <div class="gameContainer">
-        <canvas id="game"></canvas>
+    <div class="row">
+        <div class="col-md-4 col-sm-12">
+            <div class="list-group align-content-center" id="buildingSelectList">
+                @* Buttons will be generated here *@
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-12">
+            <div class="gameContainer">
+                <canvas id="game"></canvas>
+            </div>
+        </div>
     </div>
-    @* </div> *@
 </div>
+
+@* <div class="container text-center"> *@
+@*     <h3 id="gameIdHeader" class="card-title">XXXXXX</h3> *@
+@*     $1$ <div class="col-md-4 col-sm-12"> #1# *@
+@*     $1$     <div class="list-group align-content-center" id="buildingSelectList"> #1# *@
+@*     $1$         $2$ Buttons will be generated here #2# #1# *@
+@*     $1$     </div> #1# *@
+@*     $1$ </div> #1# *@
+@*     $1$ <div class="col-md-8 col-sm-12"> #1# *@
+@*     <div class="gameContainer"> *@
+@*         <canvas id="game"></canvas> *@
+@*     </div> *@
+@*     $1$ </div> #1# *@
+@* </div> *@
 
 @* <section class="h-auto"> *@
 @*     <div class="mask d-flex align-items-center"> *@
@@ -95,7 +111,7 @@
 
 @* Keep order *@
 <script src="~/lib/signalr/dist/browser/signalr.js"></script>
-<script src="~/js/game2.js"></script>
+<script src="~/js/game3.js"></script>
 
 
 @* //KEEP// *@
