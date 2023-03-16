@@ -9,4 +9,6 @@ public class GameGroup
     //ConnectionId
     public UserModel Owner { get; set; }
     public List<UserModel> Users { get; set; } = new();
+
+    private int[][] gameBoard { get; set; }
 }

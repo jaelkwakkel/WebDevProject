@@ -156,8 +156,8 @@ function placeBuilding() {
     if (gridPos.x < 0 || gridPos.y < 0) {
         return;
     }
-    gameBoard[gridPos.x][gridPos.y] = 1;
-    connection.invoke('PlacedTile', gridPos.x)
+    // gameBoard[gridPos.x][gridPos.y] = 1;
+    connection.invoke('MakeMove', gridPos.x)
         .catch(err => {
                 console.log(err);
             }

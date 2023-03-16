@@ -6,18 +6,12 @@ namespace Setup.Hubs;
 
 public class GameHub : Hub
 {
-    private static readonly List<GameGroup> _games = new();
-    private static readonly List<UserModel> _users = new();
+    private static readonly List<GameGroup> Games = new();
+    private static readonly List<UserModel> Users = new();
 
     public override async Task OnConnectedAsync()
     {
-        if (_users.All(x => x.ConnectionId != Context.ConnectionId))
-        {
-            _users.Add(new UserModel(Context.ConnectionId));
-            // _games.Add(Context.ConnectionId, 100);
-            //Glass.Project is a simple projection to transform the way the data is presented
-            await Clients.Group("").SendAsync("", ""); // broadcastMessage(glasses.Select(Glass.Project));
-        }
+        if (Users.All(x => x.ConnectionId != Context.ConnectionId)) Users.Add(new UserModel(Context.ConnectionId));
 
         await base.OnConnectedAsync();
     }
@@ -40,51 +34,52 @@ public class GameHub : Hub
 
         var user = GetConnectedUser();
         if (user == null) return;
-        var game = _games.FirstOrDefault(g => g.Key == sanitizedKey);
+        var game = Games.FirstOrDefault(g => g.Key == sanitizedKey);
         if (game == null)
         {
             game = new GameGroup { Key = sanitizedKey, Owner = user };
-            _games.Add(game);
+            Games.Add(game);
         }
 
         if (game.HasFinished || game.HasStarted)
         {
-            //TODO: M: Implement client-side function
             await Clients.Caller.SendAsync("GameJoinError", "You cannot join a group which has already started");
-            // throw new Exception("You cannot join a group which has started or finished");
             return;
         }
 
         game.Users.Add(user);
         await Groups.AddToGroupAsync(user.ConnectionId, game.Key);
 
-        await Clients.Group(game.Key).SendAsync("JoinedGroup", sanitizedKey);
-        // await BroadcastGroup(game);
+        await Clients.Caller.SendAsync("JoinedGroup", sanitizedKey);
     }
 
     private UserModel? GetConnectedUser()
     {
-        return _users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+        return Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
     }
 
     public async Task Start()
     {
-        var group = _games.FirstOrDefault(g =>
+        var game = Games.FirstOrDefault(g =>
             g.Owner.ConnectionId == Context.ConnectionId && g is { HasFinished: false, HasStarted: false });
-        if (group != null) group.HasStarted = true;
-        // await BroadcastGroup(group);
+        if (game != null)
+        {
+            game.HasStarted = true;
+            await Clients.Group(game.Key).SendAsync("startGame");
+        }
     }
 
     public async Task MakeMove()
     {
-        var group = _games.FirstOrDefault(g =>
+        var game = Games.FirstOrDefault(g =>
             g is { HasFinished: false, HasStarted: true } &&
             g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
-        if (group != null)
+        if (game != null)
         {
+            //Find user
+            var user = game.Users.First(g => g.ConnectionId == Context.ConnectionId);
         }
         //TODO: M: Do move logic
-        // var glass = group.Users.First(g => g.ConnectionId == Context.ConnectionId);
         // glass.Value--;
         // if (glass.Value <= 0)
         // {
