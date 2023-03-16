@@ -19,12 +19,23 @@ public class GameManager
     public bool RoundEnded { get; set; }
     public GameSetup GameSetup { get; }
 
-    public bool MakeMove(string playerConnectionId, string move)
+    public int[][] Board { get; set; }
+
+    public bool MakeMove(string playerConnectionId, int xPosition)
     {
         var player = GetPlayerFromConnectionId(playerConnectionId);
-
         if (playerConnectionId != UserTurnToPlay.ConnectionId)
             return false;
+
+        var yPos = 0;
+        for (var i = 0; i < Board[xPosition].Length; i++)
+        {
+            yPos = i;
+            if (Board[xPosition][yPos] == 0) break;
+        }
+
+        //Replace 1 with player-number
+        Board[xPosition][yPos] = 1;
 
         ChangePlayersTurn();
 

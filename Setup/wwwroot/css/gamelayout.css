@@ -1,15 +1,14 @@
 ﻿#game {
-    background-image: url(../Images/PlayingGrid.png);
+    /*background-image: url(../Images/PlayingGrid.png);*/
+    background-image: url(../Images/grid.png);
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
-    width: 100%;
-    height: 100%;
+    width: 75%;
     /*object-fit: cover;*/
 }
 
 .gameContainer {
-    width: 100%;
     margin: auto;
     /*display: block;*/
     /*position: absolute;*/
