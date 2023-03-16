@@ -1,0 +1,21 @@
+﻿#game {
+    background-image: url(../Images/PlayingGrid.png);
+    /*background-image: url(../Images/grid.png);*/
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 75%;
+    /*object-fit: cover;*/
+}
+
+.gameContainer {
+    margin: auto;
+    /*display: block;*/
+    /*position: absolute;*/
+}
+
+@media (min-width: 992px) {
+    .gameContainer {
+        width: 70%;
+    }
+}

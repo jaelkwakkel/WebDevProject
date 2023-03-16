@@ -1,34 +1,230 @@
-﻿@* @model TModel *@
+﻿@model GameSetup
 
 @{
     ViewBag.Title = "title";
-    Layout = "_Layout";
+    Layout = "_layout";
 }
 
-<section class="h-100">
-    <div class="mask d-flex align-items-center h-100">
-        <div class="container h-100">
-            <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="card">
-                    <div class="card-body p-5">
-                        <div class="container">
-                            <div class="row row-cols-10">
-                                @{
-                                    for (var i = 0; i < 10; i++)
-                                    {
-                                        for (var j = 0; j < 10; j++)
-                                        {
-                                            <div class="col">col</div>
-                                            @* <div class="w-100"></div> *@
-                                        }
-                                        <div class="w-100"></div>
-                                    }
-                                }
-                            </div>
-                        </div>
-                    </div>
+<link rel="stylesheet" href="~/css/gamelayout.css"/>
+@* Modal for join game *@
+<div class="modal" id="joinGameModal" tabindex="-1" role="dialog" aria-labelledby="joinGameModalLabel" aria-hidden="false">
+    @* <div class="modal" id="joinGameModal" tabindex="-1" role="dialog"> *@
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="joinGameModalLabel">Create a new game or join an existing</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="GameCode" class="form-label">Game code</label>
+                    <input type="text" maxlength="25" class="form-control" id="GameCode" placeholder="XXXXXX">
                 </div>
+                <div class="mb-3" id="error-message">
+                    <p class="alert alert-danger" role="alert" id="error-message-content"></p>
+                </div>
+                @* <input type="text" id="GameCode" placeholder="XXXXXX"/> *@
+                @* <p class="alert-warning" id="joinErrorMessage"></p> *@
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="playButton">Play</button>
             </div>
         </div>
     </div>
-</section>
+</div>
+
+<div class="container text-center">
+    <h3 id="gameIdHeader" class="card-title">XXXXXX</h3>
+    <div class="row">
+        <div class="col-md-4 col-sm-12">
+            <div class="list-group align-content-center" id="buildingSelectList">
+                @* Buttons will be generated here *@
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-12">
+            <div class="gameContainer">
+                <canvas id="game"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* <div class="container text-center"> *@
+@*     <h3 id="gameIdHeader" class="card-title">XXXXXX</h3> *@
+@*     $1$ <div class="col-md-4 col-sm-12"> #1# *@
+@*     $1$     <div class="list-group align-content-center" id="buildingSelectList"> #1# *@
+@*     $1$         $2$ Buttons will be generated here #2# #1# *@
+@*     $1$     </div> #1# *@
+@*     $1$ </div> #1# *@
+@*     $1$ <div class="col-md-8 col-sm-12"> #1# *@
+@*     <div class="gameContainer"> *@
+@*         <canvas id="game"></canvas> *@
+@*     </div> *@
+@*     $1$ </div> #1# *@
+@* </div> *@
+
+@* <section class="h-auto"> *@
+@*     <div class="mask d-flex align-items-center"> *@
+@*         <div class="container"> *@
+@*             <div class="row d-flex justify-content-center align-items-center h-100"> *@
+@*                 <div class="card"> *@
+@*                     <div class="card-body p-5"> *@
+@*                         <div class="container text-center"> *@
+@*                             <h3 id="gameIdHeader" class="card-title">XXXXXX</h3> *@
+@*                             <div class="gameContainer"> *@
+@*                                 <canvas id="game"></canvas> *@
+@*                             </div> *@
+@*                         </div> *@
+@*                     </div> *@
+@*                 </div> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* </section> *@
+
+@* <section class="h-100"> *@
+@*     <div class="mask d-flex align-items-center h-100"> *@
+@*         <div class="container h-100"> *@
+@*             <div class="row d-flex justify-content-center align-items-center h-100"> *@
+@*                 <div class="card"> *@
+@*                     <div class="card-body p-5"> *@
+@*                         <div class="container text-center"> *@
+@*                             <h3 id="gameIdHeader" class="card-title">XXXXXX</h3> *@
+@*                             <div class="row"> *@
+@*                                 <div class="col-md-4 col-sm-12"> *@
+@*                                     <div class="list-group align-content-center" id="buildingSelectList"> *@
+@*                                         $1$ Buttons will be generated here #1# *@
+@*                                     </div> *@
+@*                                 </div> *@
+@*                                 <div class="col-md-8 col-sm-12"> *@
+@*                                     <div class="gameContainer"> *@
+@*                                         <canvas id="game"></canvas> *@
+@*                                     </div> *@
+@*                                 </div> *@
+@*                             </div> *@
+@*                         </div> *@
+@*                     </div> *@
+@*                 </div> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* </section> *@
+
+@* Keep order *@
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/game3.js"></script>
+
+
+@* //KEEP// *@
+@* @model GameSetup *@
+@* *@
+@* @{ *@
+@*     ViewBag.Title = "title"; *@
+@*     Layout = "_layout"; *@
+@* } *@
+@* *@
+@* $1$ Modal for create game #1# *@
+@* <div class="modal fade" id="createGameModal" tabindex="-1" role="dialog" aria-labelledby="createGameModalLabel" aria-hidden="true"> *@
+@*     <div class="modal-dialog modal-dialog-centered" role="document"> *@
+@*         <div class="modal-content"> *@
+@*             <div class="modal-header"> *@
+@*                 <h5 class="modal-title" id="createGameModalLabel">Create new game</h5> *@
+@*                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"> *@
+@*                     <span aria-hidden="true">&times;</span> *@
+@*                 </button> *@
+@*             </div> *@
+@*             @using (Html.BeginForm("Play", "Game")) *@
+@*             { *@
+@*                 <div class="modal-body"> *@
+@*                     $1$ @Html.LabelFor(t => t.Id) #1# *@
+@*                     $1$ @Html.TextBoxFor(t => t.Id, new { placeholder = "id" }) #1# *@
+@*                     Options will be here *@
+@*                     @Html.LabelFor(t => t.Password) *@
+@*                     @Html.TextBoxFor(t => t.Password, new { placeholder = "pw" }) *@
+@*                 </div> *@
+@*                 <div class="modal-footer"> *@
+@*                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> *@
+@*                     <input type="submit" class="btn btn-primary" value="Create"/> *@
+@*                     $1$ <button type="button" class="btn btn-primary">Save changes</button> #1# *@
+@*                 </div> *@
+@*             } *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+@* *@
+@* $1$ Modal for join game #1# *@
+@* <div class="modal fade" id="joinGameModal" tabindex="-1" role="dialog" aria-labelledby="joinGameModalLabel" aria-hidden="true"> *@
+@*     <div class="modal-dialog modal-dialog-centered" role="document"> *@
+@*         <div class="modal-content"> *@
+@*             <div class="modal-header"> *@
+@*                 <h5 class="modal-title" id="joinGameModalLabel">Create new game</h5> *@
+@*                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"> *@
+@*                     <span aria-hidden="true">&times;</span> *@
+@*                 </button> *@
+@*             </div> *@
+@*             @using (Html.BeginForm("Play", "Game")) *@
+@*             { *@
+@*                 <div class="modal-body"> *@
+@*                     @Html.LabelFor(t => t.Id) *@
+@*                     @Html.TextBoxFor(t => t.Id, new { placeholder = "XXXXXX" }) *@
+@*                     @Html.LabelFor(t => t.Password) *@
+@*                     @Html.TextBoxFor(t => t.Password, new { placeholder = "******" }) *@
+@*                     <p class="alert-warning" id="joinErrorMessage"></p> *@
+@*                 </div> *@
+@*                 <div class="modal-footer"> *@
+@*                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> *@
+@*                     <input type="submit" class="btn btn-primary" value="Join"/> *@
+@*                 </div> *@
+@*             } *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+@* *@
+@* <script src="lib/bootstrap/dist/js/bootstrap.min.js"></script> *@
+@* *@
+@* $1$ #1# *@
+@* $1$ <div class="modal fade bd-example-modal-lg" id="createGameModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true"> #1# *@
+@* $1$     <div class="modal-dialog modal-lg"> #1# *@
+@* $1$         <div class="modal-content"> #1# *@
+@* $1$             @using (Html.BeginForm("Play", "Game")) #1# *@
+@* $1$             { #1# *@
+@* $1$                 @Html.LabelFor(t => t.Id) #1# *@
+@* $1$                 @Html.TextBoxFor(t => t.Id, new { placeholder = "id" }) #1# *@
+@* $1$                 @Html.LabelFor(t => t.Password) #1# *@
+@* $1$                 @Html.TextBoxFor(t => t.Password, new { placeholder = "pw" }) #1# *@
+@* $1$                                         $2$ <input type="text" id="passwordInput" placeholder="pw"/> #2# #1# *@
+@* $1$                                         $2$ <input type="text" id="idInput" placeholder="id"/> #2# #1# *@
+@* $1$                 <input type="submit" class="btn btn-primary" content="Join"/> #1# *@
+@* $1$                                         $2$ <button class="btn btn-primary" id="joinButton">Join Game</button> #2# #1# *@
+@* $1$             } #1# *@
+@* $1$         </div> #1# *@
+@* $1$     </div> #1# *@
+@* $1$ </div> #1# *@
+@* $1$ #1# *@
+@* $1$ <div id="lobby"> #1# *@
+@* <section class="h-100"> *@
+@*     <div class="mask d-flex align-items-center h-100"> *@
+@*         <div class="container h-100"> *@
+@*             <div class="row d-flex justify-content-center align-items-center h-100"> *@
+@*                 <div class="card"> *@
+@*                     <div class="card-body p-5"> *@
+@*                         <div class="container"> *@
+@*                             <div class="form-row d-flex justify-content-center align-items-center"> *@
+@*                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGameModal"> *@
+@*                                     Create *@
+@*                                 </button> *@
+@*                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinGameModal"> *@
+@*                                     Join *@
+@*                                 </button> *@
+@*                                 $1$ <button class="btn btn-primary" id="joinButton">Join Game</button> #1# *@
+@*                             </div> *@
+@*                         </div> *@
+@*                     </div> *@
+@*                 </div> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* </section> *@
+@* $1$ </div> #1# *@
+@* *@
+@* $1$ <script src="~/js/signalr/dist/browser/signalr.js"></script> #1# *@
+@* <script src="~/js/game.js"></script> *@
