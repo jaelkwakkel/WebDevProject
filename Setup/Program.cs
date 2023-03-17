@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Setup.Areas.Identity.Data;
+using Setup.Data;
 using Setup.Hubs;
-using Setup.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +11,12 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 
 //Get connection string and add DbContext
-var connectionString = builder.Configuration.GetConnectionString("ContactFormDbContext");
-builder.Services.AddDbContext<ContactFormDbContext>(x => x.UseSqlServer(connectionString));
+var connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
+//builder.Services.AddDbContext<SetupContext>(x => x.UseSqlServer(connectionString));
+builder.Services.AddDbContext<SetupContext>(x => x.UseSqlServer(connectionString));
+
+builder.Services.AddDefaultIdentity<SetupUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<SetupContext>();
 
 var app = builder.Build();
 
@@ -27,6 +32,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication(); ;
 
 app.UseAuthorization();
 

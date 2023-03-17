@@ -1,9 +1,10 @@
-﻿using System.Diagnostics;
-using Ganss.Xss;
+﻿using Ganss.Xss;
 using Microsoft.AspNetCore.Mvc;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Setup.Data;
 using Setup.Models;
+using System.Diagnostics;
 
 namespace Setup.Controllers;
 
@@ -11,10 +12,10 @@ public class HomeController : Controller
 {
     private const string PageViews = "PageViews";
 
-    private readonly ContactFormDbContext _context;
+    private readonly SetupContext _context;
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ContactFormDbContext context, ILogger<HomeController> logger)
+    public HomeController(SetupContext context, ILogger<HomeController> logger)
     {
         _logger = logger;
         _context = context;
@@ -40,7 +41,7 @@ public class HomeController : Controller
     {
         SendMail(input).Wait();
 
-        _context.ContactFormModels.Add(input);
+        //_context.ContactFormModels.Add(input);
         _context.SaveChanges();
     }
 
