@@ -195,17 +195,36 @@ function placeBuilding() {
         return;
     }
 
+    //Only place tiles on empty places
+    //TODO: M: Also check on server-side
     if (gameBoard[gridPos.x][gridPos.y].buildingType !== buildingType.grass) return;
 
-    gameBoard[gridPos.x][gridPos.y].buildingType = currentlySelected;
-    gameBoard[gridPos.x][gridPos.y].owner = 1;
-    connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
+    connection.invoke('PlacedBuilding', gridPos.x, gridPos.y, currentlySelected)
         .catch(err => {
                 console.log(err);
             }
         );
     updateGraphics();
 }
+
+// function placeBuilding() {
+//     const gridPos = mousePosToGridCell(mousePos);
+//     console.log("Try placing on: (" + gridPos.x + "," + gridPos.y + ")")
+//     if (gridPos.x < 0 || gridPos.y < 0) {
+//         return;
+//     }
+//
+//     if (gameBoard[gridPos.x][gridPos.y].buildingType !== buildingType.grass) return;
+//
+//     gameBoard[gridPos.x][gridPos.y].buildingType = currentlySelected;
+//     gameBoard[gridPos.x][gridPos.y].owner = 1;
+//     connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
+//         .catch(err => {
+//                 console.log(err);
+//             }
+//         );
+//     updateGraphics();
+// }
 
 const clamp = (number, min, max) =>
     Math.max(min, Math.min(number, max));
