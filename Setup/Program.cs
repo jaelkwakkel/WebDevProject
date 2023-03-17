@@ -42,4 +42,6 @@ app.MapControllerRoute(
 
 app.MapHub<GameHub>("/gameHub");
 
+app.MapRazorPages();
+
 app.Run();
