@@ -1,6 +1,6 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Setup.Areas.Identity.Data;
-using Setup.Data;
 using Setup.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +18,17 @@ builder.Services.AddDbContext<SetupContext>(x => x.UseSqlServer(connectionString
 builder.Services.AddDefaultIdentity<SetupUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<SetupContext>();
 
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Default Password settings.
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 12;
+    options.Password.RequiredUniqueChars = 1;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -32,7 +43,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseAuthentication(); ;
+app.UseAuthentication();
+;
 
 app.UseAuthorization();
 

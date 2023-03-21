@@ -12,3 +12,20 @@ public enum BuildingType
     School,
     Factory
 }
+
+public class BuildingInfo
+{
+    public BuildingType BuildingType { get; set; }
+    public string? Owner;
+
+    public override string ToString()
+    {
+        return "Building " + BuildingType + " is owned by " + Owner;
+    }
+
+    public BuildingInfo()
+    {
+        BuildingType = BuildingType.Grass;
+        Owner = null;
+    }
+}

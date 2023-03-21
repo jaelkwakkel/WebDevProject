@@ -7,9 +7,9 @@ public class GameLogic
     public BuildingType[,] CreateGameBoard(int size)
     {
         var gameBoard = new BuildingType[size, size];
-        for (var i = 0; i < gameBoard.GetLength(0); i++)
-        for (var j = 0; j < gameBoard.GetLength(1); j++)
-            gameBoard[i, j] = BuildingType.Grass;
+        for (var i = 0; i < gameBoard.Length; i++)
+            for (var j = 0; j < gameBoard.Length; j++)
+                gameBoard[i, j] = BuildingType.Grass;
 
         return gameBoard;
     }

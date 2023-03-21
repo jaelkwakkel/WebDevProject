@@ -1,5 +1,6 @@
 ﻿using Ganss.Xss;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 using Setup.Models;
 
 namespace Setup.Hubs;
@@ -69,55 +70,86 @@ public class GameHub : Hub
         }
     }
 
-    public async Task PlacedBuilding(string x, string y, string buildingString)
+    public async Task PlacedBuilding(string moveValues)
     {
+        var moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(moveValues);
+
+        Console.WriteLine("Tried placing building with values: " + moveValuesObject.xPosition +
+                          moveValuesObject.yPosition + moveValuesObject.buildingType);
         var game = Games.FirstOrDefault(g =>
             g is { HasFinished: false, HasStarted: true } &&
             g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
-        if (game is null) return;
-
-        if (!int.TryParse(x, out var xInt) || !int.TryParse(y, out var yInt))
+        if (game is null)
         {
-            await Clients.Caller.SendAsync("GamePlayError", "Selected grid location does not exist");
+            await Clients.Caller.SendAsync("GamePlayError", "Game has not started yet.");
             return;
         }
 
+
+        // if (!int.TryParse(moveValuesObject.xPosition, out var xInt) || !int.TryParse(y, out var yInt))
+        // {
+        //     await Clients.Caller.SendAsync("GamePlayError", "Selected grid location does not exist");
+        //     return;
+        // }
+
         //Check if it is current user's turn to play
-        if (Users.FirstOrDefault(userModel => userModel.ConnectionId == Context.ConnectionId) != game.UserTurn)
+        UserModel? currentUser = Users.FirstOrDefault(userModel => userModel.ConnectionId == Context.ConnectionId);
+        if (currentUser != game.UserTurn)
         {
-            //TODO: M: What on not user turn?
+            await Clients.Caller.SendAsync("GamePlayError", "It is not your turn.");
+            return;
         }
 
-        var buildingType = game.StringToBuildingType(buildingString);
+        //var buildingType = game.StringToBuildingType(moveValuesObject.buildingType);
 
-        game.TryPlaceBuilding(xInt, yInt, buildingType);
-        // game.
+        var buildingType = moveValuesObject.buildingType;
 
-        //Find user
-        // var user = game.Users.First(g => g.ConnectionId == Context.ConnectionId);
-        //TODO: M: Do move logic
-        // glass.Value--;
-        // if (glass.Value <= 0)
-        // {
-        //     group.HasFinished = true;
-        //     group.WinnerConnectionId = Context.ConnectionId;
-        //     group.WinnerEmail = glass.Email;
-        // }
-        //
-        // await BroadcastGroup(group);
-        // if (group.HasFinished) _groups.Remove(group);
+        var (succeed, errorMessage) =
+            game.TryPlaceBuilding(moveValuesObject.xPosition, moveValuesObject.yPosition, buildingType);
+        if (!succeed)
+        {
+            await Clients.Caller.SendAsync("GamePlayError", errorMessage);
+            return;
+        }
+
+        int index = game.Users.IndexOf(currentUser);
+        UserModel nextUser = game.Users[0];
+        if (index < game.Users.Count - 1)
+        {
+            nextUser = game.Users[index + 1];
+        }
+        game.UserTurn = nextUser;
+
+        //var stringObject = JsonConvert.SerializeObject(game.GameBoard);
+        Console.WriteLine(game.GetBoardAsJsonString());
+        await Clients.Group(game.Key).SendAsync("UpdateBoard", game.GetBoardAsJsonString());
     }
 
-    // public async Task ChangedBoard(string gameBoard)
+    private class MoveValues
+    {
+        public BuildingType buildingType;
+        public int xPosition;
+        public int yPosition;
+    }
+
+    // public async Task PlacedBuilding(string x)
     // {
-    //     Console.WriteLine("Received ChangedBoard");
-    //     var game = Games.FirstOrDefault(g =>
-    //         g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
-    //     if (game != null) await Clients.Group(game.Key).SendAsync("UpdateBoard", gameBoard);
-    //     //Find user
-    //     // var user = game.Users.First(g => g.ConnectionId == Context.ConnectionId);
-    //     // await Clients.All.SendAsync("UpdateBoard", gameBoard);
+    //     Console.WriteLine("x: " + x);
     // }
+
+    //public async Task ChangedBoard(string gameBoard)
+    //{
+    //    Console.WriteLine("Received ChangedBoard ------------------");
+    //    Console.WriteLine($"{gameBoard}");
+    //    Console.WriteLine(JsonConvert.SerializeObject(gameBoard));
+    //    //var game = Games.FirstOrDefault(g =>
+    //    //g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
+    //    //if (game != null) await Clients.Group(game.Key).SendAsync("UpdateBoard", gameBoard);
+    //    Console.WriteLine("----------------------------------------");
+    //    //Find user
+    //    // var user = game.Users.First(g => g.ConnectionId == Context.ConnectionId);
+    //    // await Clients.All.SendAsync("UpdateBoard", gameBoard);
+    //}
 }
 
 // public override async Task OnDisconnectedAsync(Exception? exception)

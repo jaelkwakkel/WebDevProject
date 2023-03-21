@@ -3,13 +3,6 @@
 //SETUP CONNECTION
 const connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 
-connection.start().then(function () {
-    hideErrorMessage();
-    $("#playButton").attr("disabled", false);
-}).catch(function (err) {
-    return console.error(err.toString());
-});
-
 function showErrorMessage(message) {
     $('#error-message').show();
     $('#error-message-content').text(message);
@@ -24,8 +17,16 @@ window.onload = function () {
     showErrorMessage("No connection");
     const playbutton = $('#playButton');
     playbutton.attr("disabled", true);
+    $('#GamePlayErrorMessage').hide();
     playbutton.click(startGame);
     $('#joinGameModal').modal({backdrop: 'static', keyboard: false});
+
+    connection.start().then(function () {
+        hideErrorMessage();
+        $("#playButton").attr("disabled", false);
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
 };
 
 connection.on('GameJoinError', (errorMessage) => {
@@ -35,6 +36,12 @@ connection.on('GameJoinError', (errorMessage) => {
 connection.on('JoinedGroup', (key) => {
     $('#gameIdHeader').text(key);
     $('#joinGameModal').modal('hide');
+});
+
+connection.on('GamePlayError', (message) => {
+    console.log("New gameplay error: " + message);
+    $('#GamePlayErrorMessage').text(message);
+    $('#GamePlayErrorMessage').show(300);
 });
 
 connection.on('UpdateBoard', (board) => {
@@ -60,26 +67,26 @@ function startGame() {
 
 //SETUP GAME CONSTANTS
 const gridSize = 10;
-const buildingType = Object.freeze({
-    grass: "grass",
-    street: "street",
-    house: "house",
-    farm: "farm",
-    cinema: "cinema",
-    energy_small: "energy_small",
-    energy_large: "energy_large",
-    school: "school",
-    factory: "factory"
-});
+const buildingType = {
+    Grass: 0,
+    Street: 1,
+    House: 2,
+    Farm: 3,
+    Cinema: 4,
+    EnergySmall: 5,
+    EnergyLarge: 6,
+    School: 7,
+    Factory: 8
+};
 
 const loadedImages = {};
 
 class GridCell {
-    buildingType;
-    owner;
+    BuildingType;
+    Owner;
 
     constructor() {
-        this.buildingType = buildingType.grass;
+        this.BuildingType = buildingType.Grass;
     }
 }
 
@@ -90,14 +97,14 @@ function preloadImage(url) {
 }
 
 //Preload tiles
-for (let item in buildingType) {
-    if (item === buildingType.grass) continue;
+for (const item in buildingType) {
+    if (item === "Grass") continue;
     preloadImage("/Images/" + item + ".png");
 }
 preloadImage("/Images/PlayingGrid.gif");
 
 let gameBoard = createGameBoard(10, 10);
-let currentlySelected = buildingType.street;
+let currentlySelected = buildingType.Street;
 
 function selectedBuilding(event) {
     //Set selected button as active, others as inactive
@@ -117,7 +124,10 @@ function selectedBuilding(event) {
 function createButtons() {
     const gameList = document.getElementById("buildingSelectList");
     for (let item in buildingType) {
-        if (item === buildingType.grass) continue;
+        if (item === "Grass") {
+            console.log("GRASSS");
+            continue;
+        }
         const button = document.createElement('button');
         button.setAttribute('class', 'list-group-item list-group-item-action align-middle');
         button.addEventListener("click", selectedBuilding);
@@ -180,8 +190,8 @@ function onMouseMove(evt) {
 function onMouseExit(evt) {
     mousePos = {x: -1, y: -1};
     updateGraphics();
-    console.log("Mouse exited playing field");
-    printBoard();
+    //console.log("Mouse exited playing field");
+    //printBoard();
 }
 
 function onMouseDown() {
@@ -189,6 +199,7 @@ function onMouseDown() {
 }
 
 function placeBuilding() {
+    $('#GamePlayErrorMessage').hide(300);
     const gridPos = mousePosToGridCell(mousePos);
     console.log("Try placing on: (" + gridPos.x + "," + gridPos.y + ")")
     if (gridPos.x < 0 || gridPos.y < 0) {
@@ -197,13 +208,33 @@ function placeBuilding() {
 
     //Only place tiles on empty places
     //TODO: M: Also check on server-side
-    if (gameBoard[gridPos.x][gridPos.y].buildingType !== buildingType.grass) return;
+    if (GetBuildingTypeFromNumber(gameBoard[gridPos.x][gridPos.y].BuildingType) !== "Grass") return;
 
-    connection.invoke('PlacedBuilding', gridPos.x, gridPos.y, currentlySelected)
+    // connection.invoke("PlacedBuilding", "test123")
+    //     .catch(err => {
+    //             console.log(err);
+    //         }
+    //     );
+
+    const values = {
+        xPosition: gridPos.x.toString(),
+        yPosition: gridPos.y.toString(),
+        buildingType: currentlySelected.toString(),
+    }
+
+    //connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
+    //    .catch(err => {
+    //        console.log(err);
+    //    }
+    //);
+
+    console.log(JSON.stringify(values));
+    connection.invoke("PlacedBuilding", JSON.stringify(values))
         .catch(err => {
+                debugger;
                 console.log(err);
             }
-        );
+    );
     updateGraphics();
 }
 
@@ -214,15 +245,15 @@ function placeBuilding() {
 //         return;
 //     }
 //
-//     if (gameBoard[gridPos.x][gridPos.y].buildingType !== buildingType.grass) return;
+//     if (gameBoard[gridPos.x][gridPos.y].buildingType !== buildingType.Grass) return;
 //
 //     gameBoard[gridPos.x][gridPos.y].buildingType = currentlySelected;
 //     gameBoard[gridPos.x][gridPos.y].owner = 1;
-//     connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
-//         .catch(err => {
-//                 console.log(err);
-//             }
-//         );
+     //connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
+     //    .catch(err => {
+     //            console.log(err);
+     //        }
+     //    );
 //     updateGraphics();
 // }
 
@@ -267,9 +298,9 @@ function drawBuildings() {
     for (let i = 0; i < gameBoard.length; i++) {
         for (let j = 0; j < gameBoard[i].length; j++) {
             let gridCoordinate = gridCellToCoordinate({x: i, y: j});
-            //Skip grass tiles when drawing
-            if (gameBoard[i][j].buildingType === buildingType.grass) continue;
-            context.drawImage(loadedImages["/Images/" + gameBoard[i][j].buildingType + ".png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
+            //Skip Grass tiles when drawing
+            if (GetBuildingTypeFromNumber(gameBoard[i][j].BuildingType) === "Grass") continue;
+            context.drawImage(loadedImages["/Images/" + GetBuildingTypeFromNumber(gameBoard[i][j].BuildingType) + ".png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
         }
     }
 }
@@ -286,6 +317,21 @@ function updateGraphics() {
 
 function updateGame(board) {
     gameBoard = JSON.parse(board);
+}
+
+function GetBuildingTypeFromNumber(buildingTypeNumber) {
+    switch (buildingTypeNumber) {
+        case 0: return "Grass";
+        case 1: return "Street";
+        case 2: return "House";
+        case 3: return "Farm";
+        case 4: return "Cinema";
+        case 5: return "EnergySmall";
+        case 6: return "EnergyLarge";
+        case 7: return "School";
+        case 8: return "Factory";
+        default: return "Helemaal mis------------";
+    };
 }
 
 //DEBUG-FUNCTIONS
