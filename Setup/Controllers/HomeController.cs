@@ -42,14 +42,13 @@ public class HomeController : Controller
     private async Task<ScoreInfo> RetrieveScoreDataAsync()
     {
         SetupUser user = await _userManager.GetUserAsync(User);
-
-        Console.WriteLine(user);
-        user.FinishedGames.ForEach(x => Console.WriteLine(x.WinnerName));
-        //SetupUser? setupUser = _userManager.Users.FirstOrDefault(u => u.Id == User.Identity.GetUserId());
         return new ScoreInfo()
         {
             highScore = user.highScore,
-            FinishedGames = user.FinishedGames,
+            FinishedGames = _context.Entry(user)
+                .Collection(b => b.FinishedGames)
+                .Query()
+                .ToList(),
         };
     }
 

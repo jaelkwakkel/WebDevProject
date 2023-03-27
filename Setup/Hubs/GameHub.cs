@@ -129,7 +129,7 @@ public class GameHub : Hub
         }
     }
 
-    public async Task SaveFinishedGameToAccount()
+    public Task SaveFinishedGameToAccount()
     {
         Console.WriteLine("Saving game...");
         var game = Games.FirstOrDefault(g => g is { HasFinished: true, HasStarted: true } &&
@@ -138,7 +138,7 @@ public class GameHub : Hub
         if (game is null)
         {
             Console.WriteLine("Save cancelled - game is null");
-            return;
+            return Task.CompletedTask;
         }
 
         var currentUser = GetConnectedUser();
@@ -146,7 +146,7 @@ public class GameHub : Hub
         if (currentUser is null)
         {
             Console.WriteLine("Save cancelled - current user is null");
-            return;
+            return Task.CompletedTask;
         }
 
         UserModel winner = game.Users.OrderByDescending(x => x.Score).First();
@@ -163,7 +163,7 @@ public class GameHub : Hub
         if (setupUser is null)
         {
             Console.WriteLine("Save cancelled - setup user is null");
-            return;
+            return Task.CompletedTask;
         }
 
         setupUser.FinishedGames.Add(gameFinishData);
@@ -176,6 +176,7 @@ public class GameHub : Hub
         _context.SaveChanges();
 
         Console.WriteLine("Saved for account: " + setupUser.UserName + " AKA " + currentUser.Name);
+        return Task.CompletedTask;
     }
 
     public async Task PlacedBuilding(string moveValues)
