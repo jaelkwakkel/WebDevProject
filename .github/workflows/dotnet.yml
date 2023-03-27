@@ -31,5 +31,5 @@ jobs:
     - name: Kill
       run: pkill dotnet
     - name: Run
-      run: dotnet /home/s1169489/temp/_work/WebDevProject/WebDevProject/Setup/bin/Release/net6.0/Setup.dll
+      run: dotnet run --urls "http://jaelscoolegame.hbo-ict.org/" /home/s1169489/temp/_work/WebDevProject/WebDevProject/Setup/bin/Release/net6.0/Setup.dll
       
