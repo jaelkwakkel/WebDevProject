@@ -7,6 +7,6 @@ public class SetupUser : IdentityUser
 {
     public int highScore { get; set; }
 
-    public List<GameFinishData> FinishedGames { get; set; }
+    public List<GameFinishData> FinishedGames { get; set; } = new List<GameFinishData>();
 }
 

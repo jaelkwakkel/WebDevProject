@@ -1,0 +1,45 @@
+﻿@model ScoreInfo
+@{
+    ViewData["Title"] = "Scores";
+}
+
+<h1>Scores</h1>
+
+<h3>Highscore: @Model.highScore</h3>
+
+@if (@Model.FinishedGames is not null)
+{
+    
+
+<h2>Previous games:</h2>
+
+<div class="row">
+    @{
+        foreach (var game in @Model.FinishedGames)
+        {
+            <div class="col-sm-6">
+                    @if (game.WonGame)
+                    {
+                <div class="card text-white bg-success mb-3" style="max-width: 18rem;">
+            <div class="card-body">
+                        <h5 class="card-title">Winner: @game.WinnerName</h5>
+                        <p class="card-text">Your score: @game.Score</p>
+            </div>
+        </div>
+                    }
+                    else
+                    {
+                                        <div class="card text-white bg-danger mb-3" style="max-width: 18rem;">
+            <div class="card-body">
+                        <h5 class="card-title">Winner: @game.WinnerName</h5>
+                        <p class="card-text">Your score: @game.Score</p>
+            </div>
+        </div>
+                    }
+
+    </div>
+        }
+    }
+</div>
+
+}

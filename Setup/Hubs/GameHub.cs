@@ -90,6 +90,7 @@ public class GameHub : Hub
         await Groups.AddToGroupAsync(user.ConnectionId, game.Key);
 
         await Clients.Group(game.Key).SendAsync("UpdateUserList", game.GetUsersAsJson());
+        await Clients.Group(game.Key).SendAsync("GamePlayMessage", $"{user.Name} has joined the game.");
 
         await Clients.Caller.SendAsync("JoinedGroup", sanitizedKey);
     }
@@ -112,7 +113,7 @@ public class GameHub : Hub
                 //Start the game with 15 score;
                 item.Score = 15;
             }
-            await Clients.Group(game.Key).SendAsync("startGame");
+            await Clients.Group(game.Key).SendAsync("GamePlayMessage", "Game has started.");
         }
         else
         {
@@ -128,12 +129,59 @@ public class GameHub : Hub
         }
     }
 
+    public async Task SaveFinishedGameToAccount()
+    {
+        Console.WriteLine("Saving game...");
+        var game = Games.FirstOrDefault(g => g is { HasFinished: true, HasStarted: true } &&
+        g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
+
+        if (game is null)
+        {
+            Console.WriteLine("Save cancelled - game is null");
+            return;
+        }
+
+        var currentUser = GetConnectedUser();
+
+        if (currentUser is null)
+        {
+            Console.WriteLine("Save cancelled - current user is null");
+            return;
+        }
+
+        UserModel winner = game.Users.OrderByDescending(x => x.Score).First();
+
+        GameFinishData gameFinishData = new()
+        {
+            Score = currentUser.Score,
+            WinnerName = winner.Name,
+            WonGame = winner == GetConnectedUser()
+        };
+
+        SetupUser? setupUser = _userManager.Users.FirstOrDefault(u => u.Id == Context.UserIdentifier);
+
+        if (setupUser is null)
+        {
+            Console.WriteLine("Save cancelled - setup user is null");
+            return;
+        }
+
+        setupUser.FinishedGames.Add(gameFinishData);
+
+        if (currentUser.Score > setupUser.highScore)
+        {
+            setupUser.highScore = currentUser.Score;
+        }
+
+        _context.SaveChanges();
+
+        Console.WriteLine("Saved for account: " + setupUser.UserName + " AKA " + currentUser.Name);
+    }
+
     public async Task PlacedBuilding(string moveValues)
     {
         var moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(moveValues);
 
-        Console.WriteLine("Tried placing building with values: " + moveValuesObject.xPosition +
-                          moveValuesObject.yPosition + moveValuesObject.buildingType);
         var game = Games.FirstOrDefault(g =>
             g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
 
@@ -197,6 +245,8 @@ public class GameHub : Hub
         }
         game.UserTurn = nextUser;
 
+        await Clients.Client(game.UserTurn.ConnectionId).SendAsync("GamePlayMessage", "It is your turn.");
+
         await Clients.Caller.SendAsync("NewScore", currentUser.Score);
         await Clients.Group(game.Key).SendAsync("UpdateBoard", game.GetBoardAsJsonString());
         await Clients.Group(game.Key).SendAsync("UpdateUserList", game.GetUsersAsJson());
@@ -204,44 +254,10 @@ public class GameHub : Hub
         if (game.CheckGameFinished())
         {
             game.HasFinished = true;
-            UserModel winner = game.Users.OrderBy(x => x.Score).First();
+            //Winner is the user with the highest score.
+            UserModel winner = game.Users.OrderByDescending(x => x.Score).First();
             await Clients.Group(game.Key).SendAsync("Finishgame", winner.Name);
-
-            SetupUser? setupUser = _userManager.Users.FirstOrDefault(u => u.Id == Context.UserIdentifier);
-
-            GameFinishData gameFinishData = new()
-            {
-                Score = currentUser.Score,
-                WinnerName = winner.Name,
-                WonGame = winner == GetConnectedUser()
-            };
-
-            if (setupUser is null)
-            {
-                return;
-            }
-
-            setupUser.FinishedGames.Add(gameFinishData);
-
-            if (currentUser.Score > setupUser.highScore)
-            {
-                setupUser.highScore = currentUser.Score;
-            }
-
-            _context.SaveChanges();
-
-            //string? loggedInUser = Context.UserIdentifier;
-            //if (loggedInUser is not null)
-            //{
-            //    //System.Web.HttpContext.Current.User.Identity.GetUserId();
-            //    //IdentityResult result = await UserManager<SetupUser>.FindByIdAsync("1");
-            //    //using (var context = new SetupContext())
-            //    //{
-            //    //    var settings = context.BlogSettings.Find(3, "johndoe1987");
-            //    //    var user = context.Users.Find("");
-            //    //}
-            //    //IdentityResult result = await UserManager<SetupUser>.UpdateAsync();
-            //}
+            //await Clients.Group(game.Key).SendAsync("GamePlayMessage", $"{winner.Name} has won the game!");
         }
     }
 

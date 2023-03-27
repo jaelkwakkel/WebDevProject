@@ -1,10 +1,13 @@
 ﻿using Ganss.Xss;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Setup.Areas.Identity.Data;
 using Setup.Models;
 using System.Diagnostics;
+
 
 namespace Setup.Controllers;
 
@@ -13,10 +16,12 @@ public class HomeController : Controller
     private const string PageViews = "PageViews";
 
     private readonly SetupContext _context;
+    private readonly UserManager<SetupUser> _userManager;
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(SetupContext context, ILogger<HomeController> logger)
+    public HomeController(SetupContext context, ILogger<HomeController> logger, UserManager<SetupUser> userManager)
     {
+        _userManager = userManager;
         _logger = logger;
         _context = context;
     }
@@ -25,6 +30,27 @@ public class HomeController : Controller
     {
         UpdatePageViewCookie();
         return View(new HomeModel(Request.Cookies[PageViews]));
+    }
+
+    [Authorize]
+    public async Task<IActionResult> ScoresAsync()
+    {
+        ScoreInfo info = await RetrieveScoreDataAsync();
+        return View(info);
+    }
+
+    private async Task<ScoreInfo> RetrieveScoreDataAsync()
+    {
+        SetupUser user = await _userManager.GetUserAsync(User);
+
+        Console.WriteLine(user);
+        user.FinishedGames.ForEach(x => Console.WriteLine(x.WinnerName));
+        //SetupUser? setupUser = _userManager.Users.FirstOrDefault(u => u.Id == User.Identity.GetUserId());
+        return new ScoreInfo()
+        {
+            highScore = user.highScore,
+            FinishedGames = user.FinishedGames,
+        };
     }
 
     [HttpPost]

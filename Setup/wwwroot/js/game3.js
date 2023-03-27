@@ -30,6 +30,7 @@ window.onload = function () {
     const playbutton = $('#playButton');
     playbutton.attr("disabled", true);
     $('#GamePlayErrorMessage').hide();
+    $('#GamePlayMessage').hide();
     playbutton.click(startGame);
     const startButton = $("#startButton");
     startButton.attr("disabled", true);
@@ -82,7 +83,12 @@ connection.on('JoinedGroup', (key) => {
 connection.on('GamePlayError', (message) => {
     console.log("New gameplay error: " + message);
     $('#GamePlayErrorMessage').text(message);
+    $('#GamePlayMessage').hide();
     $('#GamePlayErrorMessage').show();
+});
+
+connection.on('GamePlayMessage', (message) => {
+    showGameplayMessage(message);
 });
 
 connection.on('UpdateBoard', (board) => {
@@ -91,14 +97,24 @@ connection.on('UpdateBoard', (board) => {
 });
 
 connection.on('Finishgame', (winnerName) => {
+    showGameplayMessage(winnerName.toString() + " has won the game!");
     console.log("Winner: " + winnerName);
+    connection.invoke("SaveFinishedGameToAccount").catch(function (err) {
+        return console.error(err.toString());
+    });
 });
-
 
 connection.on('HideNameInput', () => {
     $('#UserName').hide();
     $('#UserNameLabel').hide();
 });
+
+function showGameplayMessage(message) {
+    console.log("New gameplay message: " + message);
+    $('#GamePlayMessage').text(message);
+    $('#GamePlayErrorMessage').hide();
+    $('#GamePlayMessage').show();
+}
 
 function startGame() {
     const key = $('#GameCode').val();
@@ -268,14 +284,11 @@ let mousePos = {x: -1, y: -1};
 function onMouseMove(evt) {
     mousePos = getMousePos(evt);
     updateGraphics();
-    // console.log("Mouse X : " + mousePos.x + ", Mouse Y : " + mousePos.y);
 }
 
 function onMouseExit(evt) {
     mousePos = {x: -1, y: -1};
     updateGraphics();
-    //console.log("Mouse exited playing field");
-    //printBoard();
 }
 
 function onMouseDown() {
@@ -284,6 +297,7 @@ function onMouseDown() {
 
 function placeBuilding() {
     $('#GamePlayErrorMessage').hide(300);
+    $('#GamePlayMessage').hide(300);
     const gridPos = mousePosToGridCell(mousePos);
     console.log("Try placing on: (" + gridPos.x + "," + gridPos.y + ")")
     if (gridPos.x < 0 || gridPos.y < 0) {
@@ -291,7 +305,6 @@ function placeBuilding() {
     }
 
     //Only place tiles on empty places
-    //TODO: M: Also check on server-side
     if (GetBuildingTypeFromNumber(gameBoard[gridPos.x][gridPos.y].BuildingType) !== "Grass") return;
 
     const values = {
