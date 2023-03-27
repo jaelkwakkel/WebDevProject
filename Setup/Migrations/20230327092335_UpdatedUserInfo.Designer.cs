@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Setup.Areas.Identity.Data;
 
@@ -11,9 +12,11 @@ using Setup.Areas.Identity.Data;
 namespace Setup.Migrations
 {
     [DbContext(typeof(SetupContext))]
-    partial class SetupContextModelSnapshot : ModelSnapshot
+    [Migration("20230327092335_UpdatedUserInfo")]
+    partial class UpdatedUserInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

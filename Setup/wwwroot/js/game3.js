@@ -1,6 +1,18 @@
 ﻿"use strict";
 
 //SETUP CONNECTION
+//const connection = new HubConnectionBuilder()
+//    .WithUrl("/gameHub", options => {
+//        options.AccessTokenProvider = async () => {
+//            var accessTokenResult = await AccessTokenProvider.RequestAccessToken();
+//            accessTokenResult.TryGetToken(out var accessToken);
+//return accessToken.Value;
+//            };
+//        })
+//.build();
+
+const userListItemTemplate = document.getElementById("user-list-item");
+
 const connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 
 function showErrorMessage(message) {
@@ -19,7 +31,11 @@ window.onload = function () {
     playbutton.attr("disabled", true);
     $('#GamePlayErrorMessage').hide();
     playbutton.click(startGame);
-    $('#joinGameModal').modal({backdrop: 'static', keyboard: false});
+    const startButton = $("#startButton");
+    startButton.attr("disabled", true);
+    startButton.click(startMatch);
+
+    $('#joinGameModal').modal({ backdrop: 'static', keyboard: false });
 
     connection.start().then(function () {
         hideErrorMessage();
@@ -33,20 +49,55 @@ connection.on('GameJoinError', (errorMessage) => {
     showErrorMessage(errorMessage);
 });
 
+connection.on('UpdateUserList', (users) => {
+    const parsedUsers = JSON.parse(users);
+
+    console.log("UpdateUserList----------!!!");
+    console.log(parsedUsers);
+
+    const userList = document.getElementById("connectedUserList");
+
+    while (userList.firstChild) {
+        userList.lastChild.remove();
+    }
+
+    for (let item in parsedUsers) {
+        const button = document.createElement('li');
+        button.innerHTML = parsedUsers[item].name + " - " + parsedUsers[item].score;
+        userList.appendChild(button);
+    }
+});
+
+connection.on('NewScore', (score) => {
+    updateScore(score);
+});
+
 connection.on('JoinedGroup', (key) => {
     $('#gameIdHeader').text(key);
     $('#joinGameModal').modal('hide');
+    $("#score").text(15);
+    $("#startButton").attr("disabled", false);
 });
 
 connection.on('GamePlayError', (message) => {
     console.log("New gameplay error: " + message);
     $('#GamePlayErrorMessage').text(message);
-    $('#GamePlayErrorMessage').show(300);
+    $('#GamePlayErrorMessage').show();
 });
 
 connection.on('UpdateBoard', (board) => {
     updateGame(board);
     updateGraphics();
+});
+
+connection.on('Finishgame', (winnerName) => {
+    console.log("Winner: " + winnerName);
+});
+
+
+connection.on('HideNameInput', () => {
+    $('#UserName').hide();
+    $('#UserNameLabel').hide();
 });
 
 function startGame() {
@@ -60,9 +111,14 @@ function startGame() {
         return;
     }
     hideErrorMessage();
-    connection.invoke("CreateOrJoin", key).catch(function (err) {
+    const name = $('#UserName').val();
+    connection.invoke("CreateOrJoin", key, name).catch(function (err) {
         return console.error(err.toString());
     });
+}
+
+function startMatch() {
+    connection.invoke("Start");
 }
 
 //SETUP GAME CONSTANTS
@@ -121,6 +177,11 @@ function selectedBuilding(event) {
     console.log(currentlySelected);
 }
 
+function updateScore(score) {
+    console.log("----------New score:" + score);
+    $("#score").text(score);
+}
+
 function createButtons() {
     const gameList = document.getElementById("buildingSelectList");
     for (let item in buildingType) {
@@ -132,13 +193,36 @@ function createButtons() {
         button.setAttribute('class', 'list-group-item list-group-item-action align-middle');
         button.addEventListener("click", selectedBuilding);
         button.setAttribute('buildingType', item);
-        button.innerHTML = item;
+        button.innerHTML = item + " - " + getCost(item);
         gameList.appendChild(button);
     }
     gameList.children.item(0).classList.add("active");
 }
 
 createButtons();
+
+function getCost(item) {
+    switch (item) {
+        case "Grass":
+            return "0";
+        case "Street":
+            return "1";
+        case "House":
+            return "4";
+        case "Farm":
+            return "9";
+        case "Cinema":
+            return "12";
+        case "EnergySmall":
+            return "3";
+        case "EnergyLarge":
+            return "6";
+        case "School":
+            return "14";
+        case "Factory":
+            return "15";
+    }
+}
 
 function createGameBoard(columnCount, rowCount) {
     const map = [];
@@ -210,23 +294,11 @@ function placeBuilding() {
     //TODO: M: Also check on server-side
     if (GetBuildingTypeFromNumber(gameBoard[gridPos.x][gridPos.y].BuildingType) !== "Grass") return;
 
-    // connection.invoke("PlacedBuilding", "test123")
-    //     .catch(err => {
-    //             console.log(err);
-    //         }
-    //     );
-
     const values = {
         xPosition: gridPos.x.toString(),
         yPosition: gridPos.y.toString(),
         buildingType: currentlySelected.toString(),
     }
-
-    //connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
-    //    .catch(err => {
-    //        console.log(err);
-    //    }
-    //);
 
     console.log(JSON.stringify(values));
     connection.invoke("PlacedBuilding", JSON.stringify(values))
@@ -237,25 +309,6 @@ function placeBuilding() {
     );
     updateGraphics();
 }
-
-// function placeBuilding() {
-//     const gridPos = mousePosToGridCell(mousePos);
-//     console.log("Try placing on: (" + gridPos.x + "," + gridPos.y + ")")
-//     if (gridPos.x < 0 || gridPos.y < 0) {
-//         return;
-//     }
-//
-//     if (gameBoard[gridPos.x][gridPos.y].buildingType !== buildingType.Grass) return;
-//
-//     gameBoard[gridPos.x][gridPos.y].buildingType = currentlySelected;
-//     gameBoard[gridPos.x][gridPos.y].owner = 1;
-     //connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
-     //    .catch(err => {
-     //            console.log(err);
-     //        }
-     //    );
-//     updateGraphics();
-// }
 
 const clamp = (number, min, max) =>
     Math.max(min, Math.min(number, max));
@@ -300,7 +353,12 @@ function drawBuildings() {
             let gridCoordinate = gridCellToCoordinate({x: i, y: j});
             //Skip Grass tiles when drawing
             if (GetBuildingTypeFromNumber(gameBoard[i][j].BuildingType) === "Grass") continue;
+            //context.fillStyle = "#09f";
+            //context.fillRect(gridCoordinate.x, gridCoordinate.y, grid, grid);
+            //context.globalCompositeOperation = "destination-in";
+
             context.drawImage(loadedImages["/Images/" + GetBuildingTypeFromNumber(gameBoard[i][j].BuildingType) + ".png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
+            //context.globalCompositeOperation = "source-over";
         }
     }
 }
@@ -333,6 +391,21 @@ function GetBuildingTypeFromNumber(buildingTypeNumber) {
         default: return "Helemaal mis------------";
     };
 }
+
+class UserListItem extends HTMLElement {
+
+    connectedCallback() {
+
+        const shadow = this.attachShadow({ mode: 'open' }),
+            template = document.getElementById('user-list-item').content.cloneNode(true);
+
+        console.log(template);
+
+        shadow.append(template);
+    }
+}
+
+customElements.define('user-list-item', UserListItem);
 
 //DEBUG-FUNCTIONS
 function printBoard() {

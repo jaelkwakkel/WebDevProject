@@ -1,8 +1,8 @@
-﻿ DROP DATABASE IF EXISTS Setup
+﻿ DROP DATABASE IF EXISTS SetupContext
  GO
- CREATE DATABASE Setup
+ CREATE DATABASE SetupContext
  GO
- USE Setup
+ USE SetupContext
  GO
 
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL

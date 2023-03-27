@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
-using Ganss.Xss;
+﻿using Ganss.Xss;
 using Microsoft.AspNetCore.Mvc;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Setup.Areas.Identity.Data;
 using Setup.Models;
+using System.Diagnostics;
 
 namespace Setup.Controllers;
 
