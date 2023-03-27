@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        dotnet: ["6.0.x"]
+        dotnet: ["6.0"]
 
     # A sequence of tasks that will execute as part of the job
     steps:
