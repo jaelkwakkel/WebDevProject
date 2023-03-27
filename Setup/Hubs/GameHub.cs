@@ -42,11 +42,7 @@ public class GameHub : Hub
                     }
                 }
             }
-            //TODO: S: If user is logged in, get the username and use it as name.
-            //var userName = Context.User.FindFirst(ClaimTypes.NameIdentifier);
         }
-
-
         await base.OnConnectedAsync();
     }
 
@@ -181,6 +177,7 @@ public class GameHub : Hub
 
     public async Task PlacedBuilding(string moveValues)
     {
+        //TODO: C: May throw error
         var moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(moveValues);
 
         var game = Games.FirstOrDefault(g =>
@@ -258,7 +255,6 @@ public class GameHub : Hub
             //Winner is the user with the highest score.
             UserModel winner = game.Users.OrderByDescending(x => x.Score).First();
             await Clients.Group(game.Key).SendAsync("Finishgame", winner.Name);
-            //await Clients.Group(game.Key).SendAsync("GamePlayMessage", $"{winner.Name} has won the game!");
         }
     }
 

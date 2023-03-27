@@ -1,18 +1,8 @@
 ﻿"use strict";
 
-//SETUP CONNECTION
-//const connection = new HubConnectionBuilder()
-//    .WithUrl("/gameHub", options => {
-//        options.AccessTokenProvider = async () => {
-//            var accessTokenResult = await AccessTokenProvider.RequestAccessToken();
-//            accessTokenResult.TryGetToken(out var accessToken);
-//return accessToken.Value;
-//            };
-//        })
-//.build();
-
 const userListItemTemplate = document.getElementById("user-list-item");
 
+//SETUP CONNECTION
 const connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 
 function showErrorMessage(message) {
@@ -264,7 +254,6 @@ calculateCanvasSize()
 
 function calculateCanvasSize() {
     const heightRatio = 1;
-    // canvas.width = canvas.parentElement.width;
     canvas.height = canvas.width * heightRatio;
     grid = canvas.width / gridSize;
 }
@@ -366,12 +355,7 @@ function drawBuildings() {
             let gridCoordinate = gridCellToCoordinate({x: i, y: j});
             //Skip Grass tiles when drawing
             if (GetBuildingTypeFromNumber(gameBoard[i][j].BuildingType) === "Grass") continue;
-            //context.fillStyle = "#09f";
-            //context.fillRect(gridCoordinate.x, gridCoordinate.y, grid, grid);
-            //context.globalCompositeOperation = "destination-in";
-
             context.drawImage(loadedImages["/Images/" + GetBuildingTypeFromNumber(gameBoard[i][j].BuildingType) + ".png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
-            //context.globalCompositeOperation = "source-over";
         }
     }
 }

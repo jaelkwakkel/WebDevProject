@@ -65,8 +65,6 @@ public class HomeController : Controller
     private void CreateNewContact(ContactFormModel input)
     {
         SendMail(input).Wait();
-
-        //_context.ContactFormModels.Add(input);
         _context.SaveChanges();
     }
 
