@@ -1,71 +1,156 @@
 ﻿"use strict";
 
+const userListItemTemplate = document.getElementById("user-list-item");
+
 //SETUP CONNECTION
 const connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 
-connection.start().catch(function (err) {
-    return console.error(err.toString());
+function showErrorMessage(message) {
+    $('#error-message').show();
+    $('#error-message-content').text(message);
+}
+
+function hideErrorMessage() {
+    $('#error-message').hide();
+    $('#error-message-content').text("");
+}
+
+window.onload = function () {
+    showErrorMessage("No connection");
+    const playbutton = $('#playButton');
+    playbutton.attr("disabled", true);
+    $('#GamePlayErrorMessage').hide();
+    $('#GamePlayMessage').hide();
+    playbutton.click(startGame);
+    const startButton = $("#startButton");
+    startButton.attr("disabled", true);
+    startButton.click(startMatch);
+
+    $('#joinGameModal').modal({ backdrop: 'static', keyboard: false });
+
+    connection.start().then(function () {
+        hideErrorMessage();
+        $("#playButton").attr("disabled", false);
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+};
+
+connection.on('GameJoinError', (errorMessage) => {
+    showErrorMessage(errorMessage);
 });
 
+connection.on('UpdateUserList', (users) => {
+    const parsedUsers = JSON.parse(users);
+
+    console.log("UpdateUserList----------!!!");
+    console.log(parsedUsers);
+
+    const userList = document.getElementById("connectedUserList");
+
+    while (userList.firstChild) {
+        userList.lastChild.remove();
+    }
+
+    for (let item in parsedUsers) {
+        const button = document.createElement('li');
+        button.innerHTML = parsedUsers[item].name + " - " + parsedUsers[item].score;
+        userList.appendChild(button);
+    }
+});
+
+connection.on('NewScore', (score) => {
+    updateScore(score);
+});
+
+connection.on('JoinedGroup', (key) => {
+    $('#gameIdHeader').text(key);
+    $('#joinGameModal').modal('hide');
+    $("#score").text(15);
+    $("#startButton").attr("disabled", false);
+});
+
+connection.on('GamePlayError', (message) => {
+    console.log("New gameplay error: " + message);
+    $('#GamePlayErrorMessage').text(message);
+    $('#GamePlayMessage').hide();
+    $('#GamePlayErrorMessage').show();
+});
+
+connection.on('GamePlayMessage', (message) => {
+    showGameplayMessage(message);
+});
 
 connection.on('UpdateBoard', (board) => {
     updateGame(board);
     updateGraphics();
 });
 
+connection.on('Finishgame', (winnerName) => {
+    showGameplayMessage(winnerName.toString() + " has won the game!");
+    console.log("Winner: " + winnerName);
+    connection.invoke("SaveFinishedGameToAccount").catch(function (err) {
+        return console.error(err.toString());
+    });
+});
+
+connection.on('HideNameInput', () => {
+    $('#UserName').hide();
+    $('#UserNameLabel').hide();
+});
+
+function showGameplayMessage(message) {
+    console.log("New gameplay message: " + message);
+    $('#GamePlayMessage').text(message);
+    $('#GamePlayErrorMessage').hide();
+    $('#GamePlayMessage').show();
+}
+
+function startGame() {
+    const key = $('#GameCode').val();
+    if (!key || key.length < 6) {
+        showErrorMessage("Key must be at least 6 characters");
+        return;
+    }
+    if (key.length > 25) {
+        showErrorMessage("Key can be no longer than 25 characters");
+        return;
+    }
+    hideErrorMessage();
+    const name = $('#UserName').val();
+    connection.invoke("CreateOrJoin", key, name).catch(function (err) {
+        return console.error(err.toString());
+    });
+}
+
+function startMatch() {
+    connection.invoke("Start");
+}
+
 //SETUP GAME CONSTANTS
 const gridSize = 10;
-const buildingType = Object.freeze({
-    grass: "grass",
-    street: "street",
-    house: "house",
-    farm: "farm",
-    cinema: "cinema",
-    energy_small: "energy_small",
-    energy_large: "energy_large",
-    school: "school",
-    factory: "factory"
-});
+const buildingType = {
+    Grass: 0,
+    Street: 1,
+    House: 2,
+    Farm: 3,
+    Cinema: 4,
+    EnergySmall: 5,
+    EnergyLarge: 6,
+    School: 7,
+    Factory: 8
+};
 
 const loadedImages = {};
 
-//DEFINE CLASSES
 class GridCell {
-    buildingType;
-    owner;
+    BuildingType;
+    Owner;
 
     constructor() {
-        this.buildingType = buildingType.grass;
+        this.BuildingType = buildingType.Grass;
     }
-
-    // placeBuilding(owner, buildingType) {
-    //     this.buildingType = buildingType;
-    //     this.owner = owner;
-    //     connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
-    //         .catch(err => {
-    //                 console.log(err);
-    //             }
-    //         );
-    //     updateGraphics();
-    // }
 }
-
-//TODO: S: Create and use webcomponent
-
-// class BuildingButton extends HTMLElement {
-//     shadowRoot;
-//
-//     constructor(name) {
-//         super();
-//         this.shadowRoot = this.attachShadow({mode: 'open'});
-//         const button = document.createElement('button');
-//         button.setAttribute('class', 'list-group-item');
-//         button.setAttribute('class', 'list-group-item-action');
-//         button.innerHTML = name;
-//         this.shadowRoot.appendChild(button);
-//     }
-// }
-// customElements.define('building-button', BuildingButton);
 
 function preloadImage(url) {
     let a = new Image()
@@ -74,14 +159,14 @@ function preloadImage(url) {
 }
 
 //Preload tiles
-for (let item in buildingType) {
-    if (item === buildingType.grass) continue;
+for (const item in buildingType) {
+    if (item === "Grass") continue;
     preloadImage("/Images/" + item + ".png");
 }
 preloadImage("/Images/PlayingGrid.gif");
 
 let gameBoard = createGameBoard(10, 10);
-let currentlySelected = buildingType.street;
+let currentlySelected = buildingType.Street;
 
 function selectedBuilding(event) {
     //Set selected button as active, others as inactive
@@ -90,7 +175,7 @@ function selectedBuilding(event) {
     for (let i = 0; i < elems.length; i++) {
         elems[i].classList.remove("active");
     }
-    
+
     const source = event.target || event.srcElement;
     source.classList.add("active");
 
@@ -98,21 +183,52 @@ function selectedBuilding(event) {
     console.log(currentlySelected);
 }
 
+function updateScore(score) {
+    console.log("----------New score:" + score);
+    $("#score").text(score);
+}
+
 function createButtons() {
     const gameList = document.getElementById("buildingSelectList");
     for (let item in buildingType) {
-        if (item === buildingType.grass) continue;
+        if (item === "Grass") {
+            console.log("GRASSS");
+            continue;
+        }
         const button = document.createElement('button');
         button.setAttribute('class', 'list-group-item list-group-item-action align-middle');
         button.addEventListener("click", selectedBuilding);
         button.setAttribute('buildingType', item);
-        button.innerHTML = item;
+        button.innerHTML = item + " - " + getCost(item);
         gameList.appendChild(button);
     }
     gameList.children.item(0).classList.add("active");
 }
 
 createButtons();
+
+function getCost(item) {
+    switch (item) {
+        case "Grass":
+            return "0";
+        case "Street":
+            return "1";
+        case "House":
+            return "4";
+        case "Farm":
+            return "9";
+        case "Cinema":
+            return "12";
+        case "EnergySmall":
+            return "3";
+        case "EnergyLarge":
+            return "6";
+        case "School":
+            return "14";
+        case "Factory":
+            return "15";
+    }
+}
 
 function createGameBoard(columnCount, rowCount) {
     const map = [];
@@ -138,7 +254,6 @@ calculateCanvasSize()
 
 function calculateCanvasSize() {
     const heightRatio = 1;
-    // canvas.width = canvas.parentElement.width;
     canvas.height = canvas.width * heightRatio;
     grid = canvas.width / gridSize;
 }
@@ -158,14 +273,11 @@ let mousePos = {x: -1, y: -1};
 function onMouseMove(evt) {
     mousePos = getMousePos(evt);
     updateGraphics();
-    // console.log("Mouse X : " + mousePos.x + ", Mouse Y : " + mousePos.y);
 }
 
 function onMouseExit(evt) {
     mousePos = {x: -1, y: -1};
     updateGraphics();
-    console.log("Mouse exited playing field");
-    printBoard();
 }
 
 function onMouseDown() {
@@ -173,21 +285,30 @@ function onMouseDown() {
 }
 
 function placeBuilding() {
+    $('#GamePlayErrorMessage').hide(300);
+    $('#GamePlayMessage').hide(300);
     const gridPos = mousePosToGridCell(mousePos);
     console.log("Try placing on: (" + gridPos.x + "," + gridPos.y + ")")
     if (gridPos.x < 0 || gridPos.y < 0) {
         return;
     }
 
-    if (gameBoard[gridPos.x][gridPos.y].buildingType !== buildingType.grass) return;
+    //Only place tiles on empty places
+    if (GetBuildingTypeFromNumber(gameBoard[gridPos.x][gridPos.y].BuildingType) !== "Grass") return;
 
-    gameBoard[gridPos.x][gridPos.y].buildingType = currentlySelected;
-    gameBoard[gridPos.x][gridPos.y].owner = 1;
-    connection.invoke('ChangedBoard', JSON.stringify(gameBoard))
+    const values = {
+        xPosition: gridPos.x.toString(),
+        yPosition: gridPos.y.toString(),
+        buildingType: currentlySelected.toString(),
+    }
+
+    console.log(JSON.stringify(values));
+    connection.invoke("PlacedBuilding", JSON.stringify(values))
         .catch(err => {
+                debugger;
                 console.log(err);
             }
-        );
+    );
     updateGraphics();
 }
 
@@ -232,9 +353,9 @@ function drawBuildings() {
     for (let i = 0; i < gameBoard.length; i++) {
         for (let j = 0; j < gameBoard[i].length; j++) {
             let gridCoordinate = gridCellToCoordinate({x: i, y: j});
-            //Skip grass tiles when drawing
-            if (gameBoard[i][j].buildingType === buildingType.grass) continue;
-            context.drawImage(loadedImages["/Images/" + gameBoard[i][j].buildingType + ".png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
+            //Skip Grass tiles when drawing
+            if (GetBuildingTypeFromNumber(gameBoard[i][j].BuildingType) === "Grass") continue;
+            context.drawImage(loadedImages["/Images/" + GetBuildingTypeFromNumber(gameBoard[i][j].BuildingType) + ".png"], gridCoordinate.x, gridCoordinate.y, grid, grid);
         }
     }
 }
@@ -252,6 +373,36 @@ function updateGraphics() {
 function updateGame(board) {
     gameBoard = JSON.parse(board);
 }
+
+function GetBuildingTypeFromNumber(buildingTypeNumber) {
+    switch (buildingTypeNumber) {
+        case 0: return "Grass";
+        case 1: return "Street";
+        case 2: return "House";
+        case 3: return "Farm";
+        case 4: return "Cinema";
+        case 5: return "EnergySmall";
+        case 6: return "EnergyLarge";
+        case 7: return "School";
+        case 8: return "Factory";
+        default: return "Helemaal mis------------";
+    };
+}
+
+class UserListItem extends HTMLElement {
+
+    connectedCallback() {
+
+        const shadow = this.attachShadow({ mode: 'open' }),
+            template = document.getElementById('user-list-item').content.cloneNode(true);
+
+        console.log(template);
+
+        shadow.append(template);
+    }
+}
+
+customElements.define('user-list-item', UserListItem);
 
 //DEBUG-FUNCTIONS
 function printBoard() {

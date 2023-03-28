@@ -1,9 +1,13 @@
-﻿using System.Diagnostics;
-using Ganss.Xss;
+﻿using Ganss.Xss;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Setup.Areas.Identity.Data;
 using Setup.Models;
+using System.Diagnostics;
+
 
 namespace Setup.Controllers;
 
@@ -11,11 +15,13 @@ public class HomeController : Controller
 {
     private const string PageViews = "PageViews";
 
-    private readonly ContactFormDbContext _context;
+    private readonly SetupContext _context;
+    private readonly UserManager<SetupUser> _userManager;
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ContactFormDbContext context, ILogger<HomeController> logger)
+    public HomeController(SetupContext context, ILogger<HomeController> logger, UserManager<SetupUser> userManager)
     {
+        _userManager = userManager;
         _logger = logger;
         _context = context;
     }
@@ -24,6 +30,26 @@ public class HomeController : Controller
     {
         UpdatePageViewCookie();
         return View(new HomeModel(Request.Cookies[PageViews]));
+    }
+
+    [Authorize]
+    public async Task<IActionResult> ScoresAsync()
+    {
+        ScoreInfo info = await RetrieveScoreDataAsync();
+        return View(info);
+    }
+
+    private async Task<ScoreInfo> RetrieveScoreDataAsync()
+    {
+        SetupUser user = await _userManager.GetUserAsync(User);
+        return new ScoreInfo()
+        {
+            highScore = user.highScore,
+            FinishedGames = _context.Entry(user)
+                .Collection(b => b.FinishedGames)
+                .Query()
+                .ToList(),
+        };
     }
 
     [HttpPost]
@@ -39,8 +65,6 @@ public class HomeController : Controller
     private void CreateNewContact(ContactFormModel input)
     {
         SendMail(input).Wait();
-
-        _context.ContactFormModels.Add(input);
         _context.SaveChanges();
     }
 
