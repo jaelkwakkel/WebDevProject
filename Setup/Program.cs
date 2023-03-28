@@ -33,6 +33,15 @@ builder.Services.AddDefaultIdentity<SetupUser>(options =>
 })
     .AddEntityFrameworkStores<SetupContext>();
 
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.Configure<IdentityOptions>(options =>
+    {
+        //To make testing and development easier, a unique email is only required in production and acceptance
+        options.User.RequireUniqueEmail = true;
+    });
+}
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     // Default Password settings.
@@ -55,11 +64,6 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-    builder.Services.Configure<IdentityOptions>(options =>
-    {
-        //To make testing and development easier, a unique email is only required in production and acceptance
-        options.User.RequireUniqueEmail = true;
-    });
 }
 
 app.UseHttpsRedirection();
