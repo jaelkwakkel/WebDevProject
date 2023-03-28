@@ -6,7 +6,19 @@ using Setup.Hubs;
 
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
+
+var connectionString = "";
+if (builder.Environment.IsDevelopment())
+{
+    connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
+}
+else
+{
+    connectionString = builder.Configuration.GetConnectionString("ProductionContextConnection");
+}
+
+
+
 if (args.Contains("--RunMigrations"))
 {
     //Run migrations

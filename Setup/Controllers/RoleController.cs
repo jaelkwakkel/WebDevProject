@@ -16,7 +16,7 @@ public class RoleController : Controller
         _roleManager = roleManager;
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public IActionResult RoleManager()
     {
         ViewBag.Users = _userManager.Users.Select(x => x.UserName);
@@ -31,7 +31,7 @@ public class RoleController : Controller
         var user = await _userManager.FindByNameAsync(collection["users"]);
         ViewBag.Users = _userManager.Users.Select(x => x.UserName);
 
-        if (user != null)
+        if (user is null)
         {
             ViewBag.Message = collection["users"] + " is not a user";
             return View("RoleManager");
@@ -44,6 +44,8 @@ public class RoleController : Controller
         {
             await _roleManager.CreateAsync(new IdentityRole(collection["roles"]));
         }
+
+        await _userManager.AddToRolesAsync(user, collection["roles"]);
 
         ViewBag.Message = "Changed role of " + collection["users"] + " to " + collection["roles"];
         return View("RoleManager");

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Ganss.Xss;
+﻿using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +6,7 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using Setup.Areas.Identity.Data;
 using Setup.Models;
+using System.Diagnostics;
 
 namespace Setup.Controllers;
 
@@ -87,7 +87,6 @@ public class HomeController : Controller
         await client.SendEmailAsync(msg);
     }
 
-    [Authorize(Roles = "Admin")]
     public IActionResult About()
     {
         return View(new AccountDetails());
