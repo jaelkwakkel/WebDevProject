@@ -26,6 +26,11 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: UpdateDB
+      run: |
+        cd ~/temp/_work/WebDevProject/WebDevProject/Setup
+        dotnet ef migrations add ${{github.run_attempt}}
+        dotnet ef database update
     - name: Publish
       run: dotnet publish -c Release -o /var/www/test-app
     - name: Restart the app
