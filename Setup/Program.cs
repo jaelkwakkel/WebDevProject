@@ -46,7 +46,7 @@ if (!builder.Environment.IsDevelopment())
 //Fix for error 13?
 builder.Services.AddDataProtection()
     .SetApplicationName($"jaelscoolegame.hbo-ict.org-{builder.Environment.EnvironmentName}")
-    .PersistKeysToFileSystem(new DirectoryInfo($@"{builder.Environment.ContentRootPath}\dp-keys"));
+    .PersistKeysToFileSystem(new DirectoryInfo($@"{builder.Environment.ContentRootPath}dp-keys"));
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
