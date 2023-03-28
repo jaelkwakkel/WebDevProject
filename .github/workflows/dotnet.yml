@@ -30,6 +30,8 @@ jobs:
       run: dotnet publish -c Release -o /var/www/test-app
     - name: Kill
       run: pkill dotnet
+    - name: Permissions
+      run: chmod ugo+rwx /home/s1169489/temp/_work/WebDevProject/WebDevProject/dp-keys
     - name: Run
       run: dotnet /home/s1169489/temp/_work/WebDevProject/WebDevProject/Setup/bin/Release/net6.0/Setup.dll --urls "http://jaelscoolegame.hbo-ict.org/"
       
