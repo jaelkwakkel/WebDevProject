@@ -26,7 +26,7 @@ window.onload = function () {
     startButton.attr("disabled", true);
     startButton.click(startMatch);
 
-    $('#joinGameModal').modal({ backdrop: 'static', keyboard: false });
+    $('#joinGameModal').modal({backdrop: 'static', keyboard: false});
 
     connection.start().then(function () {
         hideErrorMessage();
@@ -54,7 +54,7 @@ connection.on('UpdateUserList', (users) => {
 
     for (let item in parsedUsers) {
         const button = document.createElement('li');
-        button.innerHTML = parsedUsers[item].name + " - " + parsedUsers[item].score;
+        button.innerHTML = parsedUsers[item].Name + " - " + parsedUsers[item].Score;
         userList.appendChild(button);
     }
 });
@@ -308,7 +308,7 @@ function placeBuilding() {
                 debugger;
                 console.log(err);
             }
-    );
+        );
     updateGraphics();
 }
 
@@ -376,24 +376,34 @@ function updateGame(board) {
 
 function GetBuildingTypeFromNumber(buildingTypeNumber) {
     switch (buildingTypeNumber) {
-        case 0: return "Grass";
-        case 1: return "Street";
-        case 2: return "House";
-        case 3: return "Farm";
-        case 4: return "Cinema";
-        case 5: return "EnergySmall";
-        case 6: return "EnergyLarge";
-        case 7: return "School";
-        case 8: return "Factory";
-        default: return "Helemaal mis------------";
-    };
+        case 0:
+            return "Grass";
+        case 1:
+            return "Street";
+        case 2:
+            return "House";
+        case 3:
+            return "Farm";
+        case 4:
+            return "Cinema";
+        case 5:
+            return "EnergySmall";
+        case 6:
+            return "EnergyLarge";
+        case 7:
+            return "School";
+        case 8:
+            return "Factory";
+        default:
+            return "Helemaal mis------------";
+    }
 }
 
 class UserListItem extends HTMLElement {
 
     connectedCallback() {
 
-        const shadow = this.attachShadow({ mode: 'open' }),
+        const shadow = this.attachShadow({mode: 'open'}),
             template = document.getElementById('user-list-item').content.cloneNode(true);
 
         console.log(template);

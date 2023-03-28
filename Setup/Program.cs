@@ -32,6 +32,7 @@ builder.Services.AddDefaultIdentity<SetupUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
 })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<SetupContext>();
 
 if (!builder.Environment.IsDevelopment())

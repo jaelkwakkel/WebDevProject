@@ -9,7 +9,7 @@ public class UserModel
         Score = 0;
     }
 
-    public string ConnectionId { get; set; }
+    public string ConnectionId { get; }
     public int Score { get; set; }
-    public string Name { get; set; }
+    public string Name { get; }
 }

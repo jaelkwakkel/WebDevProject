@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Setup.Areas.Identity.Data;
 using Setup.Models;
-using System.Security.Claims;
-using System.Security.Principal;
 
 namespace Setup.Hubs;
 
@@ -13,9 +11,9 @@ public class GameHub : Hub
 {
     private static readonly List<GameGroup> Games = new();
     private static readonly List<UserModel> Users = new();
+    private readonly SetupContext _context;
 
     private readonly UserManager<SetupUser> _userManager;
-    private readonly SetupContext _context;
 
     public GameHub(UserManager<SetupUser> usermanager, SetupContext context)
     {
@@ -25,33 +23,24 @@ public class GameHub : Hub
 
     public override async Task OnConnectedAsync()
     {
-        ClaimsPrincipal? loggedInUser = Context.User;
-        if (loggedInUser is not null)
-        {
-            IIdentity? userIdentity = loggedInUser.Identity;
-            if (userIdentity is not null)
-            {
-                string? user = userIdentity.Name;
+        var loggedInUser = Context.User;
+        var userIdentity = loggedInUser?.Identity;
+        var user = userIdentity?.Name;
 
-                if (user is not null)
-                {
-                    if (Users.All(x => x.ConnectionId != Context.ConnectionId))
-                    {
-                        Users.Add(new UserModel(Context.ConnectionId, user));
-                        await Clients.Caller.SendAsync("HideNameInput");
-                    }
-                }
+        if (user != null)
+            if (Users.All(x => x.ConnectionId != Context.ConnectionId))
+            {
+                Users.Add(new UserModel(Context.ConnectionId, user));
+                await Clients.Caller.SendAsync("HideNameInput");
             }
-        }
+
         await base.OnConnectedAsync();
     }
 
     public async Task CreateOrJoin(string key, string name)
     {
         if (Users.All(x => x.ConnectionId != Context.ConnectionId))
-        {
             Users.Add(new UserModel(Context.ConnectionId, name));
-        }
 
         if (key.Length > 25)
         {
@@ -105,22 +94,17 @@ public class GameHub : Hub
         {
             game.HasStarted = true;
             foreach (var item in Users)
-            {
                 //Start the game with 15 score;
                 item.Score = 15;
-            }
             await Clients.Group(game.Key).SendAsync("GamePlayMessage", "Game has started.");
         }
         else
         {
             game = Games.FirstOrDefault(g =>
-            g is { HasFinished: false, HasStarted: false } &&
-            g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
+                g is { HasFinished: false, HasStarted: false } &&
+                g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
 
-            if (game is null)
-            {
-                return;
-            }
+            if (game is null) return;
             await Clients.Caller.SendAsync("GamePlayError", "Wait for the owner of this game to start the game.");
         }
     }
@@ -129,7 +113,7 @@ public class GameHub : Hub
     {
         Console.WriteLine("Saving game...");
         var game = Games.FirstOrDefault(g => g is { HasFinished: true, HasStarted: true } &&
-        g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
+                                             g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
 
         if (game is null)
         {
@@ -145,7 +129,7 @@ public class GameHub : Hub
             return Task.CompletedTask;
         }
 
-        UserModel winner = game.Users.OrderByDescending(x => x.Score).First();
+        var winner = game.Users.OrderByDescending(x => x.Score).First();
 
         GameFinishData gameFinishData = new()
         {
@@ -154,7 +138,7 @@ public class GameHub : Hub
             WonGame = winner == GetConnectedUser()
         };
 
-        SetupUser? setupUser = _userManager.Users.FirstOrDefault(u => u.Id == Context.UserIdentifier);
+        var setupUser = _userManager.Users.FirstOrDefault(u => u.Id == Context.UserIdentifier);
 
         if (setupUser is null)
         {
@@ -164,10 +148,7 @@ public class GameHub : Hub
 
         setupUser.FinishedGames.Add(gameFinishData);
 
-        if (currentUser.Score > setupUser.HighScore)
-        {
-            setupUser.HighScore = currentUser.Score;
-        }
+        if (currentUser.Score > setupUser.HighScore) setupUser.HighScore = currentUser.Score;
 
         _context.SaveChanges();
 
@@ -178,6 +159,7 @@ public class GameHub : Hub
     public async Task PlacedBuilding(string moveValues)
     {
         //TODO: C: May throw error
+        //Do not replace with var!
         MoveValues? moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(moveValues);
 
         if (moveValuesObject is null)
@@ -201,21 +183,21 @@ public class GameHub : Hub
             return;
         }
 
-        if (game.HasFinished == true)
+        if (game.HasFinished)
         {
             await Clients.Caller.SendAsync("GamePlayError", "Game has finished already.");
             return;
         }
 
         //Check if it is current user's turn to play
-        UserModel? currentUser = GetConnectedUser();
+        var currentUser = GetConnectedUser();
         if (currentUser != game.UserTurn)
         {
             await Clients.Caller.SendAsync("GamePlayError", "It is not your turn.");
             return;
         }
 
-        BuildingType buildingType = moveValuesObject.buildingType;
+        var buildingType = moveValuesObject.BuildingType;
 
         if (game.GetPriceOfBuilding(buildingType) > currentUser.Score)
         {
@@ -223,8 +205,9 @@ public class GameHub : Hub
             return;
         }
 
-        (bool succeed, string errorMessage) =
-            game.TryPlaceBuilding(moveValuesObject.xPosition, moveValuesObject.yPosition, buildingType, Context.ConnectionId);
+        var (succeed, errorMessage) =
+            game.TryPlaceBuilding(moveValuesObject.XPosition, moveValuesObject.YPosition, buildingType,
+                Context.ConnectionId);
         if (!succeed)
         {
             await Clients.Caller.SendAsync("GamePlayError", errorMessage);
@@ -233,20 +216,14 @@ public class GameHub : Hub
 
         currentUser.Score -= game.GetPriceOfBuilding(buildingType);
 
-        int score = game.CalculateScore(Context.ConnectionId);
+        var score = game.CalculateScore(Context.ConnectionId);
         currentUser.Score += score;
         //1 free score to prevent getting 0 score with no buildings
-        if (currentUser.Score <= 5)
-        {
-            currentUser.Score++;
-        }
+        if (currentUser.Score <= 5) currentUser.Score++;
 
-        int index = game.Users.IndexOf(currentUser);
-        UserModel nextUser = game.Users[0];
-        if (index < game.Users.Count - 1)
-        {
-            nextUser = game.Users[index + 1];
-        }
+        var index = game.Users.IndexOf(currentUser);
+        var nextUser = game.Users[0];
+        if (index < game.Users.Count - 1) nextUser = game.Users[index + 1];
         game.UserTurn = nextUser;
 
         await Clients.Client(game.UserTurn.ConnectionId).SendAsync("GamePlayMessage", "It is your turn.");
@@ -259,15 +236,15 @@ public class GameHub : Hub
         {
             game.HasFinished = true;
             //Winner is the user with the highest score.
-            UserModel winner = game.Users.OrderByDescending(x => x.Score).First();
+            var winner = game.Users.OrderByDescending(x => x.Score).First();
             await Clients.Group(game.Key).SendAsync("Finishgame", winner.Name);
         }
     }
 
     private class MoveValues
     {
-        public BuildingType buildingType = BuildingType.Grass;
-        public int xPosition = 0;
-        public int yPosition = 0;
+        public BuildingType BuildingType = BuildingType.Grass;
+        public int XPosition = 0;
+        public int YPosition = 0;
     }
 }

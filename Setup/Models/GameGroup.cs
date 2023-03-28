@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System.Text.Json;
+using static System.Math;
 
 namespace Setup.Models;
 
@@ -19,23 +19,25 @@ public class GameGroup
 
     public bool HasStarted { get; set; }
     public bool HasFinished { get; set; }
-    public string Key { get; set; }
+    public string Key { get; }
 
-    public UserModel Owner { get; set; }
+    public UserModel Owner { get; }
     public UserModel UserTurn { get; set; }
-    public List<UserModel> Users { get; set; } = new();
+    public List<UserModel> Users { get; } = new();
+
     [JsonProperty(ItemConverterType = typeof(StringEnumConverter))]
     public BuildingInfo[][] GameBoard { get; }
 
-    private BuildingInfo[][] CreateGameBoard(int size)
+    private static BuildingInfo[][] CreateGameBoard(int size)
     {
-        BuildingInfo[][] gameBoard = new BuildingInfo[size][];
+        var gameBoard = new BuildingInfo[size][];
         for (var i = 0; i < size; i++)
         {
             gameBoard[i] = new BuildingInfo[size];
             for (var j = 0; j < size; j++)
                 gameBoard[i][j] = new BuildingInfo();
         }
+
         return gameBoard;
     }
 
@@ -47,10 +49,7 @@ public class GameGroup
     public string GetUsersAsJson()
     {
         var userInfo = new List<UserInfo>();
-        foreach (var user in Users)
-        {
-            userInfo.Add(new UserInfo(user.Name, user.Score.ToString()));
-        }
+        foreach (var user in Users) userInfo.Add(new UserInfo(user.Name, user.Score.ToString()));
         return JsonConvert.SerializeObject(userInfo);
     }
 
@@ -85,84 +84,79 @@ public class GameGroup
 
     public bool CheckGameFinished()
     {
-        for (int x = 0; x < GameBoard.Length; x++)
-        {
-            for (int y = 0; y < GameBoard[0].Length; y++)
-            {
-                if (GameBoard[x][y].BuildingType == BuildingType.Grass)
-                {
+        foreach (var buildingInfo in GameBoard)
+            for (var y = 0; y < GameBoard[0].Length; y++)
+                if (buildingInfo[y].BuildingType == BuildingType.Grass)
                     return false;
-                }
-            }
-        }
+
         return true;
     }
 
     public int CalculateScore(string owner)
     {
-        int score = 0;
-        for (int x = 0; x < GameBoard.Length; x++)
+        var score = 0;
+        for (var x = 0; x < GameBoard.Length; x++)
+        for (var y = 0; y < GameBoard[0].Length; y++)
         {
-            for (int y = 0; y < GameBoard[0].Length; y++)
+            if (GameBoard[x][y].Owner != owner) continue;
+            //Calculate score
+            switch (GameBoard[x][y].BuildingType)
             {
-                if (GameBoard[x][y].Owner != owner)
-                {
+                case BuildingType.Grass:
                     continue;
-                }
-                //Calculate score
-                switch (GameBoard[x][y].BuildingType)
-                {
-                    case BuildingType.Grass:
-                        continue;
-                    case BuildingType.Street:
-                        continue;
-                    case BuildingType.House:
-                        score++;
-                        score += GetAdjecentBuildingTypes(x, y, 2).Where(x => x.BuildingType == BuildingType.School).Count();
-                        continue;
-                    case BuildingType.Farm:
-                        score += GetAdjecentBuildingTypes(x, y, 1).Where(x => x.BuildingType == BuildingType.Grass).Count();
-                        continue;
-                    case BuildingType.Cinema:
-                        score += GetAdjecentBuildingTypes(x, y, 1).Where(x => x.BuildingType == BuildingType.House).Count();
-                        continue;
-                    case BuildingType.EnergySmall:
-                        score += GetAdjecentBuildingTypes(x, y, 1).Where(x => x.BuildingType is BuildingType.Cinema or BuildingType.Factory or BuildingType.School).Count();
-                        continue;
-                    case BuildingType.EnergyLarge:
-                        score += GetAdjecentBuildingTypes(x, y, 2).Where(x => x.BuildingType is BuildingType.Cinema or BuildingType.Factory or BuildingType.School).Count();
-                        continue;
-                    case BuildingType.School:
-                        //Score is calculated at house
-                        continue;
-                    case BuildingType.Factory:
-                        score += GetAdjecentBuildingTypes(x, y, 10).Where(x => x.BuildingType is BuildingType.Cinema or BuildingType.School).Count() * 3;
-                        continue;
-                    default:
-                        Console.WriteLine("Als je dit op de console ziet is er iets flink misgegaan ^O^");
-                        break;
-                }
+                case BuildingType.Street:
+                    continue;
+                case BuildingType.House:
+                    score++;
+                    score += GetAdjecentBuildingTypes(x, y, 2)
+                        .Count(buildingInfo => buildingInfo.BuildingType == BuildingType.School);
+                    continue;
+                case BuildingType.Farm:
+                    score += GetAdjecentBuildingTypes(x, y, 1)
+                        .Count(buildingInfo => buildingInfo.BuildingType == BuildingType.Grass);
+                    continue;
+                case BuildingType.Cinema:
+                    score += GetAdjecentBuildingTypes(x, y, 1)
+                        .Count(buildingInfo => buildingInfo.BuildingType == BuildingType.House);
+                    continue;
+                case BuildingType.EnergySmall:
+                    score += GetAdjecentBuildingTypes(x, y, 1).Count(buildingInfo =>
+                        buildingInfo.BuildingType is BuildingType.Cinema or BuildingType.Factory
+                            or BuildingType.School);
+                    continue;
+                case BuildingType.EnergyLarge:
+                    score += GetAdjecentBuildingTypes(x, y, 2).Count(buildingInfo =>
+                        buildingInfo.BuildingType is BuildingType.Cinema or BuildingType.Factory
+                            or BuildingType.School);
+                    continue;
+                case BuildingType.School:
+                    //Score is calculated at house
+                    continue;
+                case BuildingType.Factory:
+                    score += GetAdjecentBuildingTypes(x, y, 10).Count(buildingInfo =>
+                        buildingInfo.BuildingType is BuildingType.Cinema or BuildingType.School) * 3;
+                    continue;
+                default:
+                    Console.WriteLine("Als je dit op de console ziet is er iets flink misgegaan ^O^");
+                    break;
             }
         }
+
         return score;
     }
 
-    public List<BuildingInfo> GetAdjecentBuildingTypes(int CellX, int CellY, int range)
+    private List<BuildingInfo> GetAdjecentBuildingTypes(int cellX, int cellY, int range)
     {
         List<BuildingInfo> buildings = new();
 
-        int minX = Math.Max(CellX - range, GameBoard.GetLowerBound(0));
-        int maxX = Math.Min(CellX + range, GameBoard.GetUpperBound(0));
-        int minY = Math.Max(CellY - range, GameBoard[0].GetLowerBound(0));
-        int maxY = Math.Min(CellY + range, GameBoard[0].GetUpperBound(0));
+        var minX = Max(cellX - range, GameBoard.GetLowerBound(0));
+        var maxX = Min(cellX + range, GameBoard.GetUpperBound(0));
+        var minY = Max(cellY - range, GameBoard[0].GetLowerBound(0));
+        var maxY = Min(cellY + range, GameBoard[0].GetUpperBound(0));
 
-        for (int x = minX; x <= maxX; x++)
-        {
-            for (int y = minY; y <= maxY; y++)
-            {
-                buildings.Add(GameBoard[x][y]);
-            }
-        }
+        for (var x = minX; x <= maxX; x++)
+        for (var y = minY; y <= maxY; y++)
+            buildings.Add(GameBoard[x][y]);
         return buildings;
     }
 
@@ -183,7 +177,7 @@ public class GameGroup
         };
     }
 
-    public string BuildingTypetoString(BuildingType buildingType)
+    private string BuildingTypetoString(BuildingType buildingType)
     {
         return buildingType switch
         {
@@ -222,9 +216,10 @@ public class UserInfo
 {
     public UserInfo(string name, string score)
     {
-        this.name = name;
-        this.score = score;
+        Name = name;
+        Score = score;
     }
-    public string name { get; set; }
-    public string score { get; set; }
+
+    public string Name { get; set; }
+    public string Score { get; set; }
 }

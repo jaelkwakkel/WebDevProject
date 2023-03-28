@@ -1,4 +1,5 @@
-﻿using Ganss.Xss;
+﻿using System.Diagnostics;
+using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -6,18 +7,17 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using Setup.Areas.Identity.Data;
 using Setup.Models;
-using System.Diagnostics;
-
 
 namespace Setup.Controllers;
 
+[Authorize]
 public class HomeController : Controller
 {
     private const string PageViews = "PageViews";
 
     private readonly SetupContext _context;
-    private readonly UserManager<SetupUser> _userManager;
     private readonly ILogger<HomeController> _logger;
+    private readonly UserManager<SetupUser> _userManager;
 
     public HomeController(SetupContext context, ILogger<HomeController> logger, UserManager<SetupUser> userManager)
     {
@@ -26,29 +26,29 @@ public class HomeController : Controller
         _context = context;
     }
 
+    [AllowAnonymous]
     public IActionResult Index()
     {
         UpdatePageViewCookie();
         return View(new HomeModel(Request.Cookies[PageViews]));
     }
 
-    [Authorize]
     public async Task<IActionResult> ScoresAsync()
     {
-        ScoreInfo info = await RetrieveScoreDataAsync();
+        var info = await RetrieveScoreDataAsync();
         return View(info);
     }
 
     private async Task<ScoreInfo> RetrieveScoreDataAsync()
     {
-        SetupUser user = await _userManager.GetUserAsync(User);
-        return new ScoreInfo()
+        var user = await _userManager.GetUserAsync(User);
+        return new ScoreInfo
         {
-            highScore = user.HighScore,
+            HighScore = user.HighScore,
             FinishedGames = _context.Entry(user)
                 .Collection(b => b.FinishedGames)
                 .Query()
-                .ToList(),
+                .ToList()
         };
     }
 
@@ -70,10 +70,7 @@ public class HomeController : Controller
 
     private static async Task SendMail(ContactFormModel input)
     {
-        if (input.Email is null || input.Subject is null || input.Message is null)
-        {
-            return;
-        }
+        if (input.Email is null || input.Subject is null || input.Message is null) return;
 
         //Sanitize input before doing anything with it.
         var sanitizer = new HtmlSanitizer();
@@ -84,14 +81,13 @@ public class HomeController : Controller
         var apiKey = Environment.GetEnvironmentVariable("WebdevProject");
         var client = new SendGridClient(apiKey);
         var from = new EmailAddress("contactwebdevformmail@gmail.com", sanitizedEmail);
-        var subject = sanitizedSubject;
         var to = new EmailAddress("contactwebdevformmail@gmail.com", "Contact");
         var plainTextContent = sanitizedMessage;
-        var htmlContent = sanitizedMessage;
-        var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+        var msg = MailHelper.CreateSingleEmail(from, to, sanitizedSubject, plainTextContent, sanitizedMessage);
         await client.SendEmailAsync(msg);
     }
 
+    [Authorize(Roles = "Admin")]
     public IActionResult About()
     {
         return View(new AccountDetails());
