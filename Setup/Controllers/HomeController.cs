@@ -44,7 +44,7 @@ public class HomeController : Controller
         SetupUser user = await _userManager.GetUserAsync(User);
         return new ScoreInfo()
         {
-            highScore = user.highScore,
+            highScore = user.HighScore,
             FinishedGames = _context.Entry(user)
                 .Collection(b => b.FinishedGames)
                 .Query()
@@ -70,6 +70,11 @@ public class HomeController : Controller
 
     private static async Task SendMail(ContactFormModel input)
     {
+        if (input.Email is null || input.Subject is null || input.Message is null)
+        {
+            return;
+        }
+
         //Sanitize input before doing anything with it.
         var sanitizer = new HtmlSanitizer();
         var sanitizedEmail = sanitizer.Sanitize(input.Email);

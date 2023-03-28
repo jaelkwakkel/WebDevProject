@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Setup.Areas.Identity.Data;
@@ -41,6 +42,11 @@ if (!builder.Environment.IsDevelopment())
         options.User.RequireUniqueEmail = true;
     });
 }
+
+//Fix for error 13?
+builder.Services.AddDataProtection()
+    .SetApplicationName($"jaelscoolegame.hbo-ict.org-{builder.Environment.EnvironmentName}")
+    .PersistKeysToFileSystem(new DirectoryInfo($@"{builder.Environment.ContentRootPath}\dp-keys"));
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

@@ -164,9 +164,9 @@ public class GameHub : Hub
 
         setupUser.FinishedGames.Add(gameFinishData);
 
-        if (currentUser.Score > setupUser.highScore)
+        if (currentUser.Score > setupUser.HighScore)
         {
-            setupUser.highScore = currentUser.Score;
+            setupUser.HighScore = currentUser.Score;
         }
 
         _context.SaveChanges();
@@ -178,7 +178,13 @@ public class GameHub : Hub
     public async Task PlacedBuilding(string moveValues)
     {
         //TODO: C: May throw error
-        var moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(moveValues);
+        MoveValues? moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(moveValues);
+
+        if (moveValuesObject is null)
+        {
+            await Clients.Caller.SendAsync("GamePlayError", ".");
+            return;
+        }
 
         var game = Games.FirstOrDefault(g =>
             g.Users.Any(gl => gl.ConnectionId == Context.ConnectionId));
@@ -209,7 +215,7 @@ public class GameHub : Hub
             return;
         }
 
-        var buildingType = moveValuesObject.buildingType;
+        BuildingType buildingType = moveValuesObject.buildingType;
 
         if (game.GetPriceOfBuilding(buildingType) > currentUser.Score)
         {
@@ -217,7 +223,7 @@ public class GameHub : Hub
             return;
         }
 
-        var (succeed, errorMessage) =
+        (bool succeed, string errorMessage) =
             game.TryPlaceBuilding(moveValuesObject.xPosition, moveValuesObject.yPosition, buildingType, Context.ConnectionId);
         if (!succeed)
         {
@@ -260,8 +266,8 @@ public class GameHub : Hub
 
     private class MoveValues
     {
-        public BuildingType buildingType;
-        public int xPosition;
-        public int yPosition;
+        public BuildingType buildingType = BuildingType.Grass;
+        public int xPosition = 0;
+        public int yPosition = 0;
     }
 }
