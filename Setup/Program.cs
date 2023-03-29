@@ -18,6 +18,9 @@ else
     connectionString = builder.Configuration.GetConnectionString("ProductionContextConnection");
 }
 
+Console.WriteLine("QQQXXX");
+Console.WriteLine(connectionString);
+
 if (args.Contains("--RunMigrations"))
 {
     //Run migrations
@@ -39,7 +42,6 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 //Get connection string and add DbContext
-//builder.Services.AddDbContext<SetupContext>(x => x.UseSqlServer(connectionString));
 builder.Services.AddDbContext<SetupContext>(x => x.UseSqlServer(connectionString));
 
 builder.Services.AddDefaultIdentity<SetupUser>(options =>
