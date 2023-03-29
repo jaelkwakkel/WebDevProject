@@ -4,6 +4,10 @@
 const connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 
 window.onload = function () {
+
+    $('#GamePlayErrorMessage').hide();
+    $('#GamePlayMessage').hide();
+
     $('#removeAll').click(removeAllFinishedGames);
     connection.start().then(function () {
         connection.invoke("GetActiveGames")
@@ -71,8 +75,12 @@ function removeAllFinishedGames() {
 
 function showMessage(message) {
     console.log(message);
+    $('#GamePlayMessage').text(message);
+    $('#GamePlayMessage').show();
 }
 
 function showErrorMessage(message) {
     console.log(message);
+    $('#GamePlayErrorMessage').text(message);
+    $('#GamePlayErrorMessage').show();
 }
