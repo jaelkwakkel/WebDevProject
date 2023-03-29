@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Setup.Areas.Identity.Data;
 using Setup.Hubs;
-
+using Setup.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +17,6 @@ else
 {
     connectionString = builder.Configuration.GetConnectionString("ProductionContextConnection");
 }
-
-
 
 if (args.Contains("--RunMigrations"))
 {
@@ -35,6 +34,9 @@ if (args.Contains("--RunMigrations"))
 builder.Services.AddControllersWithViews();
 //Add Signalr | https://learn.microsoft.com/en-us/aspnet/core/tutorials/signalr?tabs=visual-studio&WT.mc_id=dotnet-35129-website&view=aspnetcore-7.0
 builder.Services.AddSignalR();
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 //Get connection string and add DbContext
 //builder.Services.AddDbContext<SetupContext>(x => x.UseSqlServer(connectionString));
