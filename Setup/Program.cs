@@ -9,19 +9,19 @@ using Setup.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = "Server=localhost;Database=Setup;User Id=SA;Password=QQQTODOQQQ;";
-if (builder.Environment.IsDevelopment())
-{
-    Console.WriteLine("XXX DEVELOPMENT");
-    connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
-}
-else
-{
-    Console.WriteLine("XXX NOTDEVELOPMENT");
-    connectionString = builder.Configuration.GetConnectionString("ProductionContextConnection");
-}
+//if (builder.Environment.IsDevelopment())
+//{
+//    Console.WriteLine("XXX DEVELOPMENT");
+//    connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
+//}
+//else
+//{
+//    Console.WriteLine("XXX NOTDEVELOPMENT");
+connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
+//}
 
-Console.WriteLine("QQQXXX");
-Console.WriteLine(connectionString);
+//Console.WriteLine("QQQXXX");
+//Console.WriteLine(connectionString);
 
 if (args.Contains("--RunMigrations"))
 {
