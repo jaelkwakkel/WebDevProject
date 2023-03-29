@@ -17,7 +17,7 @@ var connectionString = "Server=localhost;Database=Setup;User Id=SA;Password=QQQT
 //else
 //{
 //    Console.WriteLine("XXX NOTDEVELOPMENT");
-connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
+connectionString = builder.Configuration.GetConnectionString("ProductionContextConnection");
 //}
 
 //Console.WriteLine("QQQXXX");
