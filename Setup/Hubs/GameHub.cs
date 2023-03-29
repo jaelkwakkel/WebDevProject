@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
+using NuGet.Protocol;
 using Setup.Areas.Identity.Data;
 using Setup.Models;
 
@@ -109,7 +110,7 @@ public class GameHub : Hub
         }
     }
 
-    public Task SaveFinishedGameToAccount()
+    public async Task SaveFinishedGameToAccount()
     {
         Console.WriteLine("Saving game...");
         var game = Games.FirstOrDefault(g => g is { HasFinished: true, HasStarted: true } &&
@@ -118,7 +119,8 @@ public class GameHub : Hub
         if (game is null)
         {
             Console.WriteLine("Save cancelled - game is null");
-            return Task.CompletedTask;
+            await Clients.Caller.SendAsync("GamePlayError", "Can not save the game");
+            return;
         }
 
         var currentUser = GetConnectedUser();
@@ -126,7 +128,8 @@ public class GameHub : Hub
         if (currentUser is null)
         {
             Console.WriteLine("Save cancelled - current user is null");
-            return Task.CompletedTask;
+            await Clients.Caller.SendAsync("GamePlayError", "Can not save the game");
+            return;
         }
 
         var winner = game.Users.OrderByDescending(x => x.Score).First();
@@ -143,7 +146,8 @@ public class GameHub : Hub
         if (setupUser is null)
         {
             Console.WriteLine("Save cancelled - setup user is null");
-            return Task.CompletedTask;
+            await Clients.Caller.SendAsync("GamePlayError", "You need to be logged in to save a game");
+            return;
         }
 
         setupUser.FinishedGames.Add(gameFinishData);
@@ -153,7 +157,7 @@ public class GameHub : Hub
         _context.SaveChanges();
 
         Console.WriteLine("Saved for account: " + setupUser.UserName + " AKA " + currentUser.Name);
-        return Task.CompletedTask;
+        return;
     }
 
     public async Task PlacedBuilding(string moveValues)
@@ -240,6 +244,94 @@ public class GameHub : Hub
             await Clients.Group(game.Key).SendAsync("Finishgame", winner.Name);
         }
     }
+
+    public async Task RemoveGame(string roomCode)
+    {
+        var setupUser = _userManager.Users.FirstOrDefault(u => u.Id == Context.UserIdentifier);
+
+        if (setupUser is null)
+        {
+            Console.WriteLine("Save cancelled - setup user is null");
+            await Clients.Caller.SendAsync("Abort", "You need to be logged in to remove a game");
+            return;
+        }
+
+        if (!(await _userManager.GetRolesAsync(setupUser)).Contains("Moderator"))
+        {
+            Console.WriteLine("Save cancelled - setup user is null");
+            await Clients.Caller.SendAsync("Abort", "You need to be moderator to remove a game");
+            return;
+        }
+
+        var game = Games.FirstOrDefault(g =>
+            g.Key.Equals(roomCode));
+
+        if (game is null)
+        {
+            await Clients.Caller.SendAsync("ErrorMessage", "Game not found.");
+            return;
+        }
+
+        await Clients.Caller.SendAsync("Message", "Succesfully removed game with code: " + game.Key);
+        Games.Remove(game);
+        List<(string, bool)> gameInfo = new();
+        Games.ForEach(x =>
+        {
+            gameInfo.Add((x.Key, x.HasFinished));
+        });
+
+        await Clients.Caller.SendAsync("UpdateGameList", gameInfo.ToJson());
+    }
+
+    public async Task RemoveAllFinishedGames()
+    {
+        var setupUser = _userManager.Users.FirstOrDefault(u => u.Id == Context.UserIdentifier);
+
+        if (setupUser is null)
+        {
+            Console.WriteLine("Save cancelled - setup user is null");
+            await Clients.Caller.SendAsync("Abort", "You need to be logged in to remove a game");
+            return;
+        }
+
+        if (!(await _userManager.GetRolesAsync(setupUser)).Contains("Moderator"))
+        {
+            Console.WriteLine("Save cancelled - setup user is null");
+            await Clients.Caller.SendAsync("Abort", "You need to be moderator to remove a game");
+            return;
+        }
+
+        int amount = Games.RemoveAll(game => game.HasFinished);
+        await Clients.Caller.SendAsync("Message", $"Succesfully removed {amount} games");
+    }
+
+    public async Task GetActiveGames()
+    {
+        var setupUser = _userManager.Users.FirstOrDefault(u => u.Id == Context.UserIdentifier);
+
+        if (setupUser is null)
+        {
+            Console.WriteLine("Save cancelled - setup user is null");
+            await Clients.Caller.SendAsync("Abort", "You need to be logged in to view active games");
+            return;
+        }
+
+        if (!(await _userManager.GetRolesAsync(setupUser)).Contains("Moderator"))
+        {
+            Console.WriteLine("Save cancelled - setup user is null");
+            await Clients.Caller.SendAsync("Abort", "You need to be moderator to view active games");
+            return;
+        }
+
+        List<(string, bool)> gameInfo = new();
+        Games.ForEach(x =>
+        {
+            gameInfo.Add((x.Key, x.HasFinished));
+        });
+
+        await Clients.Caller.SendAsync("UpdateGameList", gameInfo.ToJson());
+    }
+
 
     private class MoveValues
     {

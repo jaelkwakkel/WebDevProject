@@ -24,6 +24,12 @@ public class RoleController : Controller
         return View();
     }
 
+    [Authorize(Roles = "Moderator")]
+    public IActionResult GameManager()
+    {
+        return View();
+    }
+
     [HttpPost]
     public async Task<IActionResult> OnPost(IFormCollection collection)
     {

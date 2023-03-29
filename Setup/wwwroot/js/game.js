@@ -26,6 +26,12 @@ window.onload = function () {
     startButton.attr("disabled", true);
     startButton.click(startMatch);
 
+    $("#rePlayButton").click(replayGame);
+
+    $('.menuButton').each(function (i, obj) {
+        $(this).click(backToMenu);
+    });
+
     $('#joinGameModal').modal({backdrop: 'static', keyboard: false});
 
     connection.start().then(function () {
@@ -89,7 +95,11 @@ connection.on('UpdateBoard', (board) => {
 connection.on('Finishgame', (winnerName) => {
     showGameplayMessage(winnerName.toString() + " has won the game!");
     console.log("Winner: " + winnerName);
-    connection.invoke("SaveFinishedGameToAccount").catch(function (err) {
+    connection.invoke("SaveFinishedGameToAccount")
+        .then(function () {
+            $('#finishGameModal').modal({ backdrop: 'static', keyboard: false });
+        })
+        .catch(function (err) {
         return console.error(err.toString());
     });
 });
@@ -98,6 +108,14 @@ connection.on('HideNameInput', () => {
     $('#UserName').hide();
     $('#UserNameLabel').hide();
 });
+
+function backToMenu() {
+    window.location.href = "/";
+}
+
+function replayGame() {
+    window.location.reload();
+}
 
 function showGameplayMessage(message) {
     console.log("New gameplay message: " + message);
@@ -413,6 +431,11 @@ class UserListItem extends HTMLElement {
 }
 
 customElements.define('user-list-item', UserListItem);
+
+connection.on('Abort', (errorMessage) => {
+    console.log(errorMessage);
+    window.location.href = "/";
+});
 
 //DEBUG-FUNCTIONS
 function printBoard() {

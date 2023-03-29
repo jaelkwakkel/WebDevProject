@@ -1,9 +1,36 @@
-﻿@page
-@model HomeModel
+﻿@using Setup.Areas.Identity.Data
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<SetupUser> SignInManager
+@inject UserManager<SetupUser> UserManager
 
 
-Linkje naar Game, Scores en Login-pagina
+@*Linkje naar Game, Scores en Login-pagina*@
+<div class="container">
+    <div class="card text-center">
+        <div class="card-body">
+            <h5 class="card-title">Welcome</h5>
+            <button onclick="window.location.href='/game'" type="button" class="btn btn-success btn-lg"><i class="bi-play-circle-fill"></i> Play</button>
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <button onclick="window.location.href='/home/scores'" type="button" class="btn btn-warning btn-lg"><i class="bi-trophy-fill"></i> Scores</button>
+            }
+            else
+            {
+                <button onclick="window.location.href='/Identity/Account/Login'" type="button" class="btn btn-dark btn-lg"><i class="bi-box-arrow-right"></i> Login</button>
+            }
 
+            @if (User.IsInRole("Admin"))
+            {
+                <button onclick="window.location.href='/role/rolemanager'" type="button" class="btn btn-danger btn-lg"><i class="bi-person-plus-fill"></i> ADMIN</button>
+            }
+
+            @if (User.IsInRole("Moderator"))
+            {
+                <button onclick="window.location.href='/role/gamemanager'" type="button" class="btn btn-danger btn-lg"><i class="bi-terminal-fill"></i> MODERATOR</button>
+            }
+        </div>
+    </div>
+</div>
 
 
 @*@{
