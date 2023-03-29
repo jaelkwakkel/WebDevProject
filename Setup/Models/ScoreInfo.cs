@@ -1,10 +1,9 @@
 ﻿using Setup.Areas.Identity.Data;
 
-namespace Setup.Models
+namespace Setup.Models;
+
+public class ScoreInfo
 {
-    public class ScoreInfo
-    {
-        public int highScore { get; set; }
-        public List<GameFinishData> FinishedGames { get; set; }
-    }
+    public int HighScore { get; set; }
+    public List<GameFinishData> FinishedGames { get; set; }
 }

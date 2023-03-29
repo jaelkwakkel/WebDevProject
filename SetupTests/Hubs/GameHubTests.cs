@@ -1,14 +1,13 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Setup.Hubs.Tests
+namespace SetupTests.Hubs;
+
+[TestClass]
+public class GameHubTests
 {
-    [TestClass()]
-    public class GameHubTests
+    [TestMethod]
+    public void SaveFinishedGameToAccountTest()
     {
-        [TestMethod()]
-        public void SaveFinishedGameToAccountTest()
-        {
-            Assert.IsNull(null);
-        }
+        Assert.IsNull(null);
     }
 }

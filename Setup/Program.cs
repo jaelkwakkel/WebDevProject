@@ -1,12 +1,26 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Setup.Areas.Identity.Data;
 using Setup.Hubs;
-
+using Setup.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
+
+var connectionString = "";
+if (builder.Environment.IsDevelopment())
+{
+    connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
+}
+else
+{
+    connectionString = builder.Configuration.GetConnectionString("ProductionContextConnection");
+}
+
+Console.WriteLine("QQQXXX");
+Console.WriteLine(connectionString);
+
 if (args.Contains("--RunMigrations"))
 {
     //Run migrations
@@ -24,14 +38,17 @@ builder.Services.AddControllersWithViews();
 //Add Signalr | https://learn.microsoft.com/en-us/aspnet/core/tutorials/signalr?tabs=visual-studio&WT.mc_id=dotnet-35129-website&view=aspnetcore-7.0
 builder.Services.AddSignalR();
 
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
+
 //Get connection string and add DbContext
-//builder.Services.AddDbContext<SetupContext>(x => x.UseSqlServer(connectionString));
 builder.Services.AddDbContext<SetupContext>(x => x.UseSqlServer(connectionString));
 
 builder.Services.AddDefaultIdentity<SetupUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
 })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<SetupContext>();
 
 if (!builder.Environment.IsDevelopment())

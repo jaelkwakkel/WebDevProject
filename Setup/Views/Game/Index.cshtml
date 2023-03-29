@@ -23,7 +23,28 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button class="btn btn-secondary menuButton">Menu</button>
                 <button class="btn btn-primary" id="playButton">Play</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal for finish game *@
+<div class="modal" id="finishGameModal" tabindex="-1" role="dialog" aria-labelledby="finishGameModalLabel" aria-hidden="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="finishGameModalLabel">Game finished!</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3" id="finish-message">
+                    <p class="alert alert-success" role="alert" id="finish-message-content"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary menuButton">Menu</button>
+                <button class="btn btn-primary" id="rePlayButton">Play again</button>
             </div>
         </div>
     </div>

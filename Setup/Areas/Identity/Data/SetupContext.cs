@@ -12,6 +12,8 @@ public class SetupContext : IdentityDbContext<SetupUser>
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        //When removing user, also remove the games corresponding to it
+        builder.Entity<SetupUser>().HasMany(b => b.FinishedGames).WithOne().OnDelete(DeleteBehavior.Cascade);
         base.OnModelCreating(builder);
         // Customize the ASP.NET Identity model and override the defaults if needed.
         // For example, you can rename the ASP.NET Identity table names and more.

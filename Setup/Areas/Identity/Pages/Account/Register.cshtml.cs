@@ -24,13 +24,15 @@ public class RegisterModel : PageModel
     private readonly SignInManager<SetupUser> _signInManager;
     private readonly UserManager<SetupUser> _userManager;
     private readonly IUserStore<SetupUser> _userStore;
+    private readonly RoleManager<IdentityRole> _roleManager;
 
     public RegisterModel(
         UserManager<SetupUser> userManager,
         IUserStore<SetupUser> userStore,
         SignInManager<SetupUser> signInManager,
         ILogger<RegisterModel> logger,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        RoleManager<IdentityRole> roleManager)
     {
         _userManager = userManager;
         _userStore = userStore;
@@ -38,6 +40,7 @@ public class RegisterModel : PageModel
         _signInManager = signInManager;
         _logger = logger;
         _emailSender = emailSender;
+        _roleManager = roleManager;
     }
 
     /// <summary>
@@ -74,12 +77,19 @@ public class RegisterModel : PageModel
         {
             var user = CreateUser();
 
-            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+            await _userStore.SetUserNameAsync(user, Input.Username, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+            if (!await _roleManager.RoleExistsAsync("User"))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("User"));
+            }
+
             var result = await _userManager.CreateAsync(user, Input.Password);
 
             if (result.Succeeded)
             {
+                await _userManager.AddToRoleAsync(user, "User");
                 _logger.LogInformation("User created a new account with password.");
 
                 var userId = await _userManager.GetUserIdAsync(user);
@@ -137,6 +147,10 @@ public class RegisterModel : PageModel
     /// </summary>
     public class InputModel
     {
+        [Required]
+        [Display(Name = "Username")]
+        public string Username { get; set; }
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
