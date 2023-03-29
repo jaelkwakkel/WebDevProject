@@ -9,14 +9,16 @@ using Setup.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = "Server=localhost;Database=Setup;User Id=SA;Password=QQQTODOQQQ;";
-//if (builder.Environment.IsDevelopment())
-//{
-//    connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
-//}
-//else
-//{
-//connectionString = builder.Configuration.GetConnectionString("ProductionContextConnection");
-//}
+if (builder.Environment.IsDevelopment())
+{
+    Console.WriteLine("XXX DEVELOPMENT");
+    connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
+}
+else
+{
+    Console.WriteLine("XXX NOTDEVELOPMENT");
+    connectionString = builder.Configuration.GetConnectionString("ProductionContextConnection");
+}
 
 Console.WriteLine("QQQXXX");
 Console.WriteLine(connectionString);
