@@ -13,7 +13,7 @@ namespace Setup.Controllers;
 [Authorize]
 public class HomeController : Controller
 {
-    private const string PageViews = "PageViews";
+    //private const string PageViews = "PageViews";
 
     private readonly SetupContext _context;
     private readonly ILogger<HomeController> _logger;
@@ -29,8 +29,9 @@ public class HomeController : Controller
     [AllowAnonymous]
     public IActionResult Index()
     {
-        UpdatePageViewCookie();
-        return View(new HomeModel(Request.Cookies[PageViews]));
+        //UpdatePageViewCookie();
+        //return View(new HomeModel(Request.Cookies[PageViews]));
+        return View();
     }
 
     public async Task<IActionResult> ScoresAsync()
@@ -108,19 +109,19 @@ public class HomeController : Controller
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
-    public void UpdatePageViewCookie()
-    {
-        var currentCookieValue = Request.Cookies[PageViews];
+    //public void UpdatePageViewCookie()
+    //{
+    //    var currentCookieValue = Request.Cookies[PageViews];
 
-        if (currentCookieValue == null)
-        {
-            Response.Cookies.Append(PageViews, "1");
-        }
-        else
-        {
-            var newCookieValue = short.Parse(currentCookieValue) + 1;
+    //    if (currentCookieValue == null)
+    //    {
+    //        Response.Cookies.Append(PageViews, "1");
+    //    }
+    //    else
+    //    {
+    //        var newCookieValue = short.Parse(currentCookieValue) + 1;
 
-            Response.Cookies.Append(PageViews, newCookieValue.ToString());
-        }
-    }
+    //        Response.Cookies.Append(PageViews, newCookieValue.ToString());
+    //    }
+    //}
 }

@@ -9,20 +9,7 @@ using Setup.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = "Server=localhost;Database=Setup;User Id=SA;Password=QQQTODOQQQ;";
-
 connectionString = builder.Configuration.GetConnectionString("ProductionContextConnection");
-
-//if (args.Contains("--RunMigrations"))
-//{
-//    //Run migrations
-//    DbContextOptionsBuilder<SetupContext> optionsBuilder = new();
-//    optionsBuilder.UseSqlServer(connectionString);
-//    SetupContext setupContext = new(optionsBuilder.Options);
-
-//    //setupContext.Database.EnsureCreated();
-//    setupContext.Database.Migrate();
-//    return;
-//}
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -81,6 +68,16 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+// Security headers
+//app.Use(async (context, next) =>
+//{
+//    context.Response.Headers.Add("X-Frame-Options", "DENY");
+//    context.Response.Headers.Add("X-Xss-Protection", "1; mode=block");
+//    context.Response.Headers.Add("Referrer-Policy", "no-referrer");
+//    context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
+//    await next();
+//});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

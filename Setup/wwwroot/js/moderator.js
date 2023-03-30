@@ -21,7 +21,7 @@ window.onload = function () {
 
 connection.on('Abort', (errorMessage) => {
     console.log(errorMessage);
-    window.location.href = "/";
+    //window.location.href = "/";
 });
 
 connection.on('Message', (Message) => {
