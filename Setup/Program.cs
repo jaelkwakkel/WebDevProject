@@ -58,11 +58,6 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.SignIn.RequireConfirmedEmail = true;
 });
 
-//builder.Services.AddAntiforgery(options =>
-//{
-//    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-//});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
