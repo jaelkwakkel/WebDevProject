@@ -19,7 +19,7 @@ public class RoleController : Controller
         _logger = logger;
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "admin")]
     public IActionResult RoleManager()
     {
         ViewBag.Users = _userManager.Users.Select(x => x.UserName);
@@ -27,7 +27,7 @@ public class RoleController : Controller
         return View();
     }
 
-    [Authorize(Roles = "Moderator")]
+    [Authorize(Roles = "moderator")]
     public IActionResult GameManager()
     {
         return View();
@@ -52,7 +52,7 @@ public class RoleController : Controller
 
         if (!await _roleManager.RoleExistsAsync(collection["roles"]))
         {
-            if (collection["roles"] == "User" || collection["roles"] == "Moderator" || collection["roles"] == "Admin")
+            if (collection["roles"] == "user" || collection["roles"] == "moderator" || collection["roles"] == "admin")
             {
                 //Create role if not exist, only if role is user, moderator or admin
                 await _roleManager.CreateAsync(new IdentityRole(collection["roles"]));

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Setup.Areas.Identity.Data;
 
@@ -11,9 +12,11 @@ using Setup.Areas.Identity.Data;
 namespace Setup.Migrations
 {
     [DbContext(typeof(SetupContext))]
-    partial class SetupContextModelSnapshot : ModelSnapshot
+    [Migration("20230330084234_UpdateAdminLogica")]
+    partial class UpdateAdminLogica
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace Setup.Migrations
                         new
                         {
                             Id = "c79d3d41-1379-45b1-8f77-aae3bd6042ac",
-                            ConcurrencyStamp = "81dee3a7-becd-4e26-b329-0d6fe3c8cee2",
+                            ConcurrencyStamp = "39d8cb28-9752-4001-8bff-d967472795d0",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         });
@@ -272,18 +275,18 @@ namespace Setup.Migrations
                         {
                             Id = "54173ae5-e1fd-461a-960d-c9c666157f45",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "252c107c-81fa-4033-9c44-e3a0a174e6c5",
-                            Email = "gamemailservice18+admin@gmail.com",
+                            ConcurrencyStamp = "ce8a2326-6153-40d3-b546-36d5e7afcc2e",
+                            Email = "gamemailservice18+test@gmail.com",
                             EmailConfirmed = true,
                             HighScore = 0,
                             LockoutEnabled = false,
-                            NormalizedEmail = "GAMEMAILSERVICE18+ADMIN@GMAIL.COM",
-                            NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEN3OKe9bgd1MKxYWlVdTBoDn0SN84XXNUZDG0UUkileLfpWdwmkzzJBgu5iWJ/D5NA==",
+                            NormalizedEmail = "GAMEMAILSERVICE18+TEST@GMAIL.COM",
+                            NormalizedUserName = "TESTADMIN",
+                            PasswordHash = "AQAAAAEAACcQAAAAELuiTcjFL1MtsbtLsGh0V9zSTqJ2abpMsJK+lJDOqAsX2ootXto4zwsyNilFWY1LBA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "f69f80a4-3f75-4e96-8bdd-63d2ec713c6d",
+                            SecurityStamp = "3ebb999b-f27a-4e77-b6c9-8f114c8aa9fd",
                             TwoFactorEnabled = false,
-                            UserName = "admin"
+                            UserName = "testadmin"
                         });
                 });
 

@@ -19,12 +19,12 @@
                 <button onclick="window.location.href='/Identity/Account/Login'" type="button" class="btn btn-dark btn-lg"><i class="bi-box-arrow-right"></i> Login</button>
             }
 
-            @if (User.IsInRole("Admin"))
+            @if (User.IsInRole("admin"))
             {
                 <button onclick="window.location.href='/role/rolemanager'" type="button" class="btn btn-danger btn-lg"><i class="bi-person-plus-fill"></i> ADMIN</button>
             }
 
-            @if (User.IsInRole("Moderator"))
+            @if (User.IsInRole("moderator"))
             {
                 <button onclick="window.location.href='/role/gamemanager'" type="button" class="btn btn-danger btn-lg"><i class="bi-terminal-fill"></i> MODERATOR</button>
             }

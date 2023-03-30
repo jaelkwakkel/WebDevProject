@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Setup.Areas.Identity.Data;
 
 public class SetupContext : IdentityDbContext<SetupUser>
 {
+    private const string ADMIN_ROLE_ID = "c79d3d41-1379-45b1-8f77-aae3bd6042ac";
+    private const string ADMIN_USER_ID = "54173ae5-e1fd-461a-960d-c9c666157f45";
     private IPasswordHasher<SetupUser> _passwordHasher;
 
     public SetupContext(DbContextOptions<SetupContext> options, IPasswordHasher<SetupUser> passwordHasher)
@@ -22,28 +25,29 @@ public class SetupContext : IdentityDbContext<SetupUser>
         // Seeding an admin user
         SetupUser user = new()
         {
-            Email = "gamemailservice18+test@gmail.com",
-            NormalizedEmail = "GAMEMAILSERVICE18+TEST@GMAIL.COM",
+            Id = ADMIN_USER_ID,
+            Email = "gamemailservice18+admin@gmail.com",
+            NormalizedEmail = "GAMEMAILSERVICE18+ADMIN@GMAIL.COM",
             EmailConfirmed = true,
-            UserName = "testadmin",
-            NormalizedUserName = "TESTADMIN"
+            UserName = "admin",
+            NormalizedUserName = "ADMIN"
         };
         var password = System.Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
         var hash = _passwordHasher.HashPassword(user, password);
         user.PasswordHash = hash;
 
         // Seeding an admin role
-        IdentityRole adminRoleData = new() { Name = "admin", NormalizedName = "ADMIN".ToUpper() };
-        builder.Entity<IdentityRole>().HasData(adminRoleData);
+        IdentityRole roleData = new() { Id = ADMIN_ROLE_ID, Name = "admin" };
+        DataBuilder<IdentityRole> adminRoleData = builder.Entity<IdentityRole>().HasData(roleData);
 
         // Seeding relation between user and role
         builder.Entity<IdentityUserRole<string>>().HasData(
             new IdentityUserRole<string>
             {
-                RoleId = adminRoleData.Id,
-                UserId = user.Id
+                RoleId = ADMIN_ROLE_ID,
+                UserId = ADMIN_USER_ID
             }
-        ); ;
+        );
 
         // Database Seeding Create an admin user
         builder.Entity<SetupUser>().HasData(user);
