@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Setup.Services;
 
 namespace Setup.Areas.Identity.Data;
 
@@ -8,10 +10,13 @@ public class SetupContext : IdentityDbContext<SetupUser>
 {
     private IPasswordHasher<SetupUser> _passwordHasher;
 
-    public SetupContext(DbContextOptions<SetupContext> options, IPasswordHasher<SetupUser> passwordHasher)
+    public AuthMessageSenderOptions Options { get; }
+
+    public SetupContext(DbContextOptions<SetupContext> options, IPasswordHasher<SetupUser> passwordHasher, IOptions<AuthMessageSenderOptions> optionsAccessor)
         : base(options)
     {
         _passwordHasher = passwordHasher;
+        Options = optionsAccessor.Value;
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -29,7 +34,7 @@ public class SetupContext : IdentityDbContext<SetupUser>
             NormalizedUserName = "TESTADMIN"
         };
         var password = System.Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
-        var hash = _passwordHasher.HashPassword(user, password);
+        var hash = _passwordHasher.HashPassword(user, Options.ADMIN_PASSWORD);
         user.PasswordHash = hash;
 
         // Seeding an admin role
