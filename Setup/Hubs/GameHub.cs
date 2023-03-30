@@ -256,7 +256,7 @@ public class GameHub : Hub
             return;
         }
 
-        if (!(await _userManager.GetRolesAsync(setupUser)).Contains("Moderator"))
+        if (!(await _userManager.GetRolesAsync(setupUser)).Contains("moderator"))
         {
             Console.WriteLine("Save cancelled - setup user is null");
             await Clients.Caller.SendAsync("Abort", "You need to be moderator to remove a game");
@@ -294,7 +294,7 @@ public class GameHub : Hub
             return;
         }
 
-        if (!(await _userManager.GetRolesAsync(setupUser)).Contains("Moderator"))
+        if (!(await _userManager.GetRolesAsync(setupUser)).Contains("moderator"))
         {
             Console.WriteLine("Save cancelled - setup user is null");
             await Clients.Caller.SendAsync("Abort", "You need to be moderator to remove a game");
@@ -316,7 +316,7 @@ public class GameHub : Hub
             return;
         }
 
-        if (!(await _userManager.GetRolesAsync(setupUser)).Contains("Moderator"))
+        if (!(await _userManager.GetRolesAsync(setupUser)).Contains("moderator"))
         {
             Console.WriteLine("Save cancelled - setup user is null");
             await Clients.Caller.SendAsync("Abort", "You need to be moderator to view active games");
