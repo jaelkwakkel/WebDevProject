@@ -39,3 +39,12 @@ jobs:
       run: |
         export XDG_RUNTIME_DIR=/run/user/$(id -u)
         systemctl --user restart test-app.service
+        
+  security:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test for public javascript library vulnerabilities 
+        uses: lirantal/is-website-vulnerable@main
+        with:
+          scan-url: "https://jaelscoolegame.hbo-ict.org/"
