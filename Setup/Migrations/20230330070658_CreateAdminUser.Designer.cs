@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Setup.Areas.Identity.Data;
 
@@ -11,9 +12,11 @@ using Setup.Areas.Identity.Data;
 namespace Setup.Migrations
 {
     [DbContext(typeof(SetupContext))]
-    partial class SetupContextModelSnapshot : ModelSnapshot
+    [Migration("20230330070658_CreateAdminUser")]
+    partial class CreateAdminUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,15 +50,6 @@ namespace Setup.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "28dd4688-4f35-4364-868d-d76c8baffa31",
-                            ConcurrencyStamp = "03776b77-3453-45fd-87ce-a6da17ef0fc7",
-                            Name = "admin",
-                            NormalizedName = "ADMIN"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -145,13 +139,6 @@ namespace Setup.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "264cde90-7d7c-408c-9018-229e7cb9166f",
-                            RoleId = "28dd4688-4f35-4364-868d-d76c8baffa31"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -270,18 +257,16 @@ namespace Setup.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "264cde90-7d7c-408c-9018-229e7cb9166f",
+                            Id = "24396ef8-4708-496b-92e3-fce56fc743c5",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b5733dd4-a817-48fa-aa62-c5cefbd1a3bb",
+                            ConcurrencyStamp = "83a22fd1-2983-4fb9-9fdd-ccd0d1afb4fe",
                             Email = "gamemailservice18+test@gmail.com",
                             EmailConfirmed = true,
                             HighScore = 0,
                             LockoutEnabled = false,
-                            NormalizedEmail = "GAMEMAILSERVICE18+TEST@GMAIL.COM",
-                            NormalizedUserName = "TESTADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAELYZ0oMitodFE1XQnlJtqevzyzkswPqXJu2jsiWoMkmkuB8cDRi1bNf+UEQS0IjPiQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEGDQ0dsG/t4/zmOmno2KLogurm6pahfFUmY78783IlHS8z6Zh8CXveNMuwCUZhT5bw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c0f3f24d-014c-4923-a2ca-6d2e2ccb52f4",
+                            SecurityStamp = "a921ade0-d4db-4c17-a8be-605622cd23cd",
                             TwoFactorEnabled = false,
                             UserName = "testadmin"
                         });

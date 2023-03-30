@@ -9,31 +9,20 @@ using Setup.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = "Server=localhost;Database=Setup;User Id=SA;Password=QQQTODOQQQ;";
-//if (builder.Environment.IsDevelopment())
-//{
-//    Console.WriteLine("XXX DEVELOPMENT");
-//    connectionString = builder.Configuration.GetConnectionString("SetupContextConnection");
-//}
-//else
-//{
-//    Console.WriteLine("XXX NOTDEVELOPMENT");
+
 connectionString = builder.Configuration.GetConnectionString("ProductionContextConnection");
+
+//if (args.Contains("--RunMigrations"))
+//{
+//    //Run migrations
+//    DbContextOptionsBuilder<SetupContext> optionsBuilder = new();
+//    optionsBuilder.UseSqlServer(connectionString);
+//    SetupContext setupContext = new(optionsBuilder.Options);
+
+//    //setupContext.Database.EnsureCreated();
+//    setupContext.Database.Migrate();
+//    return;
 //}
-
-//Console.WriteLine("QQQXXX");
-//Console.WriteLine(connectionString);
-
-if (args.Contains("--RunMigrations"))
-{
-    //Run migrations
-    DbContextOptionsBuilder<SetupContext> optionsBuilder = new();
-    optionsBuilder.UseSqlServer(connectionString);
-    SetupContext setupContext = new(optionsBuilder.Options);
-
-    //setupContext.Database.EnsureCreated();
-    setupContext.Database.Migrate();
-    return;
-}
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -97,6 +86,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
 app.UseAuthentication();
 
 app.UseAuthorization();
