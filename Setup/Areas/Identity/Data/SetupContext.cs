@@ -33,8 +33,8 @@ public class SetupContext : IdentityDbContext<SetupUser>
             UserName = "testadmin",
             NormalizedUserName = "TESTADMIN"
         };
-        var password = System.Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
-        var hash = _passwordHasher.HashPassword(user, Options.ADMIN_PASSWORD);
+        var password = Options.ADMIN_PASSWORD;//System.Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+        var hash = _passwordHasher.HashPassword(user, password);
         user.PasswordHash = hash;
 
         // Seeding an admin role
