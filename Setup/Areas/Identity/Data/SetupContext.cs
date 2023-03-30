@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Setup.Services;
 
 namespace Setup.Areas.Identity.Data;
 
@@ -10,13 +8,10 @@ public class SetupContext : IdentityDbContext<SetupUser>
 {
     private IPasswordHasher<SetupUser> _passwordHasher;
 
-    public AuthMessageSenderOptions Options { get; }
-
-    public SetupContext(DbContextOptions<SetupContext> options, IPasswordHasher<SetupUser> passwordHasher, IOptions<AuthMessageSenderOptions> optionsAccessor)
+    public SetupContext(DbContextOptions<SetupContext> options, IPasswordHasher<SetupUser> passwordHasher)
         : base(options)
     {
         _passwordHasher = passwordHasher;
-        Options = optionsAccessor.Value;
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
