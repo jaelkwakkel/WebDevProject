@@ -33,7 +33,7 @@ public class SetupContext : IdentityDbContext<SetupUser>
             UserName = "testadmin",
             NormalizedUserName = "TESTADMIN"
         };
-        var password = Options.ADMIN_PASSWORD;//System.Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+        var password = System.Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
         var hash = _passwordHasher.HashPassword(user, password);
         user.PasswordHash = hash;
 
