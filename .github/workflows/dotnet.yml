@@ -28,6 +28,8 @@ jobs:
       run: dotnet test --no-build --verbosity normal
     - name: UpdateDB
       run: |
+        source ~/runjob.sh
+        cp ~/appsettings.json ~/temp/_work/WebDevProject/WebDevProject/Setup
         cd ~/temp/_work/WebDevProject/WebDevProject/Setup
         dotnet ef migrations add ${{github.run_attempt}}
         dotnet ef database update
