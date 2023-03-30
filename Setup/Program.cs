@@ -70,14 +70,14 @@ if (!app.Environment.IsDevelopment())
 }
 
 // Security headers
-//app.Use(async (context, next) =>
-//{
-//    context.Response.Headers.Add("X-Frame-Options", "DENY");
-//    context.Response.Headers.Add("X-Xss-Protection", "1; mode=block");
-//    context.Response.Headers.Add("Referrer-Policy", "no-referrer");
-//    context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
-//    await next();
-//});
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("X-Frame-Options", "DENY");
+    context.Response.Headers.Add("X-Xss-Protection", "1; mode=block");
+    context.Response.Headers.Add("Referrer-Policy", "no-referrer");
+    context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
+    await next();
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
