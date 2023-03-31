@@ -39,6 +39,7 @@ jobs:
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
       with:
+        token: ${{ secrets.DEPENDENCY_UPDATE_TOKEN }}
         title: "Updated nuget dependencies"
         body: ${{ steps.update.outputs.body }}
         reviewers: tjololo
