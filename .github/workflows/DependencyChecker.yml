@@ -42,5 +42,5 @@ jobs:
         token: ${{ secrets.DEPENDENCY_UPDATE_TOKEN }}
         title: "Updated nuget dependencies"
         body: ${{ steps.update.outputs.body }}
-        reviewers: tjololo
+        reviewers: jaelkwakkel
         labels: dependencies
