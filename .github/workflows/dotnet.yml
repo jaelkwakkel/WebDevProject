@@ -11,7 +11,8 @@ on:
 
 jobs:
   build:
-
+  #Only start building if the tests succeed
+    needs: sonarscan
     runs-on: self-hosted
 
     steps:
