@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Setup.Areas.Identity.Data;
+using Setup.Services;
 
 namespace Setup.Areas.Identity.Pages.Account.Manage
 {
@@ -13,13 +14,15 @@ namespace Setup.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<SetupUser> _userManager;
         private readonly ILogger<Disable2faModel> _logger;
+        private readonly EmailSender _emailSender;
 
         public Disable2faModel(
             UserManager<SetupUser> userManager,
-            ILogger<Disable2faModel> logger)
+            ILogger<Disable2faModel> logger, EmailSender emailSender)
         {
             _userManager = userManager;
             _logger = logger;
+            _emailSender = emailSender;
         }
 
         /// <summary>
@@ -60,6 +63,7 @@ namespace Setup.Areas.Identity.Pages.Account.Manage
             }
 
             _logger.LogInformation("User with ID '{UserId}' has disabled 2fa.", _userManager.GetUserId(User));
+            await _emailSender.SendEmailAsync(user.Email, "Disabled 2fa", $"Two factor authentication has been disabled on your account! Not you? Please contact support.");
             StatusMessage = "2fa has been disabled. You can reenable 2fa when you setup an authenticator app";
             return RedirectToPage("./TwoFactorAuthentication");
         }

@@ -36,6 +36,8 @@ public class SetupContext : IdentityDbContext<SetupUser>
         var hash = _passwordHasher.HashPassword(user, password);
         user.PasswordHash = hash;
 
+        user.PasswordHash = _passwordHasher.HashPassword(user, password);
+
         // Seeding an admin role
         IdentityRole roleData = new() { Id = ADMIN_ROLE_ID, Name = "admin" };
         DataBuilder<IdentityRole> adminRoleData = builder.Entity<IdentityRole>().HasData(roleData);

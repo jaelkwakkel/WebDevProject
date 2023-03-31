@@ -8,6 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="BusinessLogic\**" />
+    <Content Remove="BusinessLogic\**" />
+    <EmbeddedResource Remove="BusinessLogic\**" />
+    <None Remove="BusinessLogic\**" />
+    <TypeScriptCompile Remove="BusinessLogic\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="HtmlSanitizer" Version="8.0.645" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.15" />
@@ -40,10 +48,6 @@
     <_ContentIncludedByDefault Remove="Views\Account\CreateAccount.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Account\Index.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Account\Login.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="BusinessLogic" />
   </ItemGroup>
 
 </Project>

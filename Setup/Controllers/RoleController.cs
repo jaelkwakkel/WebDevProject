@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Ganss.Xss;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Setup.Areas.Identity.Data;
 
@@ -37,7 +39,19 @@ public class RoleController : Controller
     public async Task<IActionResult> OnPost(IFormCollection collection)
     {
 
-        var user = await _userManager.FindByNameAsync(collection["users"]);
+        StringValues unsafeUserName = collection["users"];
+        StringValues unsafeRoleName = collection["roles"];
+        if (unsafeUserName.IsNullOrEmpty())
+        {
+            ViewBag.Message = unsafeUserName + " is null or empty.";
+            return View("RoleManager");
+        }
+
+        HtmlSanitizer htmlSanitizer = new();
+        string userName = htmlSanitizer.Sanitize(unsafeUserName.ToString());
+        string roleName = htmlSanitizer.Sanitize(unsafeRoleName.ToString());
+
+        var user = await _userManager.FindByNameAsync(userName);
         bool deleteUser = !collection["deleteUserCheckbox"].ToString().IsNullOrEmpty();
 
         Console.WriteLine("deleteUser: " + deleteUser + " | " + (deleteUser ? "TRUE" : "FALSE"));
@@ -46,30 +60,30 @@ public class RoleController : Controller
 
         if (user is null)
         {
-            ViewBag.Message = collection["users"] + " is not a user";
+            ViewBag.Message = userName + " is not a user";
             return View("RoleManager");
         }
 
-        if (!await _roleManager.RoleExistsAsync(collection["roles"]))
+        if (!await _roleManager.RoleExistsAsync(roleName))
         {
-            if (collection["roles"] == "user" || collection["roles"] == "moderator" || collection["roles"] == "admin")
+            if (roleName == "user" || roleName == "moderator" || roleName == "admin")
             {
                 //Create role if not exist, only if role is user, moderator or admin
-                await _roleManager.CreateAsync(new IdentityRole(collection["roles"]));
+                await _roleManager.CreateAsync(new IdentityRole(roleName));
             }
         }
 
         if (deleteUser)
         {
             await _userManager.DeleteAsync(user);
-            ViewBag.Message = "Deleted user " + collection["users"];
+            ViewBag.Message = "Deleted user " + userName;
             _logger.LogInformation("Moderator deleted user with Id: '{UserId}'", user.Id);
         }
         else
         {
-            await _userManager.AddToRolesAsync(user, collection["roles"]);
-            ViewBag.Message = "Changed role of " + collection["users"] + " to " + collection["roles"];
-            _logger.LogInformation("changed role of user with Id: '{UserId}' to '{Role}'", user.Id, collection["roles"]);
+            await _userManager.AddToRoleAsync(user, roleName);
+            ViewBag.Message = "Changed role of " + userName + " to " + roleName;
+            _logger.LogInformation("changed role of user with Id: '{UserId}' to '{Role}'", user.Id, roleName);
         }
 
         return View("RoleManager");

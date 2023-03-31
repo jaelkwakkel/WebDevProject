@@ -13,6 +13,7 @@ public class GameHub : Hub
     private static readonly List<GameGroup> Games = new();
     private static readonly List<UserModel> Users = new();
     private readonly SetupContext _context;
+    private readonly HtmlSanitizer htmlSanitizer;
 
     private readonly UserManager<SetupUser> _userManager;
 
@@ -20,6 +21,7 @@ public class GameHub : Hub
     {
         _userManager = usermanager;
         _context = context;
+        htmlSanitizer = new HtmlSanitizer();
     }
 
     public override async Task OnConnectedAsync()
@@ -38,8 +40,11 @@ public class GameHub : Hub
         await base.OnConnectedAsync();
     }
 
-    public async Task CreateOrJoin(string key, string name)
+    public async Task CreateOrJoin(string unsafeKey, string unsafeName)
     {
+        string key = htmlSanitizer.Sanitize(unsafeKey);
+        string name = htmlSanitizer.Sanitize(unsafeName);
+
         if (Users.All(x => x.ConnectionId != Context.ConnectionId))
             Users.Add(new UserModel(Context.ConnectionId, name));
 
@@ -49,9 +54,7 @@ public class GameHub : Hub
             return;
         }
 
-        //Key is user-given input. Sanitize it
-        var sanitizedKey = new HtmlSanitizer().Sanitize(key);
-        if (sanitizedKey.Length < 6)
+        if (key.Length < 6)
         {
             await Clients.Caller.SendAsync("GameJoinError", "Key must be at least 6 characters");
             return;
@@ -59,10 +62,10 @@ public class GameHub : Hub
 
         var user = GetConnectedUser();
         if (user == null) return;
-        var game = Games.FirstOrDefault(g => g.Key == sanitizedKey);
+        var game = Games.FirstOrDefault(g => g.Key == key);
         if (game == null)
         {
-            game = new GameGroup(sanitizedKey, user); // { Key = sanitizedKey, Owner = user };
+            game = new GameGroup(key, user);
             Games.Add(game);
         }
 
@@ -78,7 +81,7 @@ public class GameHub : Hub
         await Clients.Group(game.Key).SendAsync("UpdateUserList", game.GetUsersAsJson());
         await Clients.Group(game.Key).SendAsync("GamePlayMessage", $"{user.Name} has joined the game.");
 
-        await Clients.Caller.SendAsync("JoinedGroup", sanitizedKey);
+        await Clients.Caller.SendAsync("JoinedGroup", key);
     }
 
     private UserModel? GetConnectedUser()
@@ -118,8 +121,11 @@ public class GameHub : Hub
 
         if (game is null)
         {
+            // Specific message for developers
             Console.WriteLine("Save cancelled - game is null");
-            await Clients.Caller.SendAsync("GamePlayError", "Can not save the game");
+            // Generic message for users
+            // Same method for all error messages
+            await Clients.Caller.SendAsync("GamePlayError", "Can not save the game.");
             return;
         }
 
@@ -128,7 +134,7 @@ public class GameHub : Hub
         if (currentUser is null)
         {
             Console.WriteLine("Save cancelled - current user is null");
-            await Clients.Caller.SendAsync("GamePlayError", "Can not save the game");
+            await Clients.Caller.SendAsync("GamePlayError", "Can not save the game.");
             return;
         }
 
@@ -146,7 +152,7 @@ public class GameHub : Hub
         if (setupUser is null)
         {
             Console.WriteLine("Save cancelled - setup user is null");
-            await Clients.Caller.SendAsync("GamePlayError", "You need to be logged in to save a game");
+            await Clients.Caller.SendAsync("GamePlayError", "Can not save the game.");
             return;
         }
 
@@ -160,15 +166,17 @@ public class GameHub : Hub
         return;
     }
 
-    public async Task PlacedBuilding(string moveValues)
+    public async Task PlacedBuilding(string unsafeMoveValues)
     {
+        string moveValues = htmlSanitizer.Sanitize(unsafeMoveValues);
+
         //TODO: C: May throw error
         //Do not replace with var!
         MoveValues? moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(moveValues);
 
         if (moveValuesObject is null)
         {
-            await Clients.Caller.SendAsync("GamePlayError", ".");
+            await Clients.Caller.SendAsync("GamePlayError", "An unexpected error ocurred.");
             return;
         }
 
@@ -177,7 +185,7 @@ public class GameHub : Hub
 
         if (game is null)
         {
-            await Clients.Caller.SendAsync("GamePlayError", "Game not found.");
+            await Clients.Caller.SendAsync("GamePlayError", "An unexpected error ocurred.");
             return;
         }
 
@@ -245,21 +253,23 @@ public class GameHub : Hub
         }
     }
 
-    public async Task RemoveGame(string roomCode)
+    public async Task RemoveGame(string unsafeRoomCode)
     {
+        string roomCode = htmlSanitizer.Sanitize(unsafeRoomCode);
+
         var setupUser = _userManager.Users.FirstOrDefault(u => u.Id == Context.UserIdentifier);
 
         if (setupUser is null)
         {
-            Console.WriteLine("Save cancelled - setup user is null");
-            await Clients.Caller.SendAsync("Abort", "You need to be logged in to remove a game");
+            Console.WriteLine("Remove cancelled - You need to be logged in to remove a game");
+            await Clients.Caller.SendAsync("Abort", "An unexpected error ocurred.");
             return;
         }
 
         if (!(await _userManager.GetRolesAsync(setupUser)).Contains("moderator"))
         {
-            Console.WriteLine("Save cancelled - setup user is null");
-            await Clients.Caller.SendAsync("Abort", "You need to be moderator to remove a game");
+            Console.WriteLine("Remove cancelled - You need to be moderator to remove a game");
+            await Clients.Caller.SendAsync("Abort", "An unexpected error ocurred.");
             return;
         }
 
@@ -268,7 +278,7 @@ public class GameHub : Hub
 
         if (game is null)
         {
-            await Clients.Caller.SendAsync("ErrorMessage", "Game not found.");
+            await Clients.Caller.SendAsync("ErrorMessage", "An unexpected error ocurred.");
             return;
         }
 
@@ -289,15 +299,15 @@ public class GameHub : Hub
 
         if (setupUser is null)
         {
-            Console.WriteLine("Save cancelled - setup user is null");
-            await Clients.Caller.SendAsync("Abort", "You need to be logged in to remove a game");
+            Console.WriteLine("Remove cancelled - You need to be logged in to remove a game");
+            await Clients.Caller.SendAsync("Abort", "An unexpected error ocurred.");
             return;
         }
 
         if (!(await _userManager.GetRolesAsync(setupUser)).Contains("moderator"))
         {
-            Console.WriteLine("Save cancelled - setup user is null");
-            await Clients.Caller.SendAsync("Abort", "You need to be moderator to remove a game");
+            Console.WriteLine("Remove cancelled - You need to be moderator to remove a game");
+            await Clients.Caller.SendAsync("Abort", "An unexpected error ocurred.");
             return;
         }
 
@@ -311,15 +321,15 @@ public class GameHub : Hub
 
         if (setupUser is null)
         {
-            Console.WriteLine("Save cancelled - setup user is null");
-            await Clients.Caller.SendAsync("Abort", "You need to be logged in to view active games");
+            Console.WriteLine("Remove cancelled - You need to be logged in to view active games");
+            await Clients.Caller.SendAsync("Abort", "An unexpected error ocurred.");
             return;
         }
 
         if (!(await _userManager.GetRolesAsync(setupUser)).Contains("moderator"))
         {
-            Console.WriteLine("Save cancelled - setup user is null");
-            await Clients.Caller.SendAsync("Abort", "You need to be moderator to view active games");
+            Console.WriteLine("Remove cancelled - You need to be moderator to view active games");
+            await Clients.Caller.SendAsync("Abort", "An unexpected error ocurred.");
             return;
         }
 

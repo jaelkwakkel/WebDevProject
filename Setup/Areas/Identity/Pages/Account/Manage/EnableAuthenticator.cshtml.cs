@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Setup.Areas.Identity.Data;
+using Setup.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Text;
@@ -18,17 +19,18 @@ namespace Setup.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<SetupUser> _userManager;
         private readonly ILogger<EnableAuthenticatorModel> _logger;
         private readonly UrlEncoder _urlEncoder;
-
+        private readonly EmailSender _emailSender;
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
 
         public EnableAuthenticatorModel(
             UserManager<SetupUser> userManager,
             ILogger<EnableAuthenticatorModel> logger,
-            UrlEncoder urlEncoder)
+            UrlEncoder urlEncoder, EmailSender emailSender)
         {
             _userManager = userManager;
             _logger = logger;
             _urlEncoder = urlEncoder;
+            _emailSender = emailSender;
         }
 
         /// <summary>
@@ -123,6 +125,8 @@ namespace Setup.Areas.Identity.Pages.Account.Manage
 
             await _userManager.SetTwoFactorEnabledAsync(user, true);
             var userId = await _userManager.GetUserIdAsync(user);
+            await _emailSender.SendEmailAsync(user.Email, "Enabled 2fa", $"Two factor authentication has been enabled on your account! Not you? Please contact support.");
+
             _logger.LogInformation("User with ID '{UserId}' has enabled 2FA with an authenticator app.", userId);
 
             StatusMessage = "Your authenticator app has been verified.";

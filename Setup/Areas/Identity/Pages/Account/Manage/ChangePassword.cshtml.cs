@@ -3,6 +3,7 @@
 #nullable disable
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Setup.Areas.Identity.Data;
@@ -15,15 +16,17 @@ namespace Setup.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<SetupUser> _userManager;
         private readonly SignInManager<SetupUser> _signInManager;
         private readonly ILogger<ChangePasswordModel> _logger;
+        private readonly IEmailSender _emailSender;
 
         public ChangePasswordModel(
             UserManager<SetupUser> userManager,
             SignInManager<SetupUser> signInManager,
-            ILogger<ChangePasswordModel> logger)
+            ILogger<ChangePasswordModel> logger, IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _emailSender = emailSender;
         }
 
         /// <summary>
@@ -117,6 +120,7 @@ namespace Setup.Areas.Identity.Pages.Account.Manage
 
             await _signInManager.RefreshSignInAsync(user);
             _logger.LogInformation("User changed their password successfully.");
+            await _emailSender.SendEmailAsync(user.Email, "Changed Password", $"Your password has been changed! Not you? Please contact support.");
             StatusMessage = "Your password has been changed.";
 
             return RedirectToPage();

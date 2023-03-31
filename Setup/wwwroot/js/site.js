@@ -21,14 +21,15 @@ class GDPR {
             this.saveDateTime();
         });
 
-        let buttonReject = document.querySelector('.gdpr-consent__button--reject');
-        buttonReject.addEventListener('click', () => {
-            this.cookieStatus('reject');
-            // this.showStatus();
-            this.showContent();
-            this.hideGDPR();
-            this.saveDateTime();
-        });
+        //Dont allow to reject. Site relies on cookie data.
+        //let buttonReject = document.querySelector('.gdpr-consent__button--reject');
+        //buttonReject.addEventListener('click', () => {
+        //    this.cookieStatus('reject');
+        //    // this.showStatus();
+        //    this.showContent();
+        //    this.hideGDPR();
+        //    this.saveDateTime();
+        //});
     }
 
 
