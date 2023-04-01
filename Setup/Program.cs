@@ -78,7 +78,7 @@ app.Use(async (context, next) =>
     context.Response.Headers.Add("X-Xss-Protection", "1; mode=block");
     context.Response.Headers.Add("Referrer-Policy", "no-referrer");
     context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
-    context.Response.Headers.Add("Content-Security-Policy", "default-src 'self';frame-ancestors 'none';");
+    context.Response.Headers.Add("Content-Security-Policy", /*"default-src 'self'; breaks jquery and bootstrap*/"frame-ancestors 'none';");
     context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
 
     await next();
