@@ -1,4 +1,5 @@
-﻿using Ganss.Xss;
+﻿using System.Diagnostics;
+using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,6 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using Setup.Areas.Identity.Data;
 using Setup.Models;
-using System.Diagnostics;
 
 namespace Setup.Controllers;
 
@@ -40,7 +40,7 @@ public class HomeController : Controller
         return View(info);
     }
 
-    private async Task<ScoreInfo> RetrieveScoreDataAsync()
+    public async Task<ScoreInfo> RetrieveScoreDataAsync()
     {
         var user = await _userManager.GetUserAsync(User);
         return new ScoreInfo

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Setup.Areas.Identity.Data;
 
@@ -10,11 +9,12 @@ namespace Setup.Controllers;
 
 public class RoleController : Controller
 {
-    private readonly UserManager<SetupUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ILogger<RoleController> _logger;
+    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly UserManager<SetupUser> _userManager;
 
-    public RoleController(UserManager<SetupUser> userManager, RoleManager<IdentityRole> roleManager, ILogger<RoleController> logger)
+    public RoleController(UserManager<SetupUser> userManager, RoleManager<IdentityRole> roleManager,
+        ILogger<RoleController> logger)
     {
         _userManager = userManager;
         _roleManager = roleManager;
@@ -38,9 +38,8 @@ public class RoleController : Controller
     [HttpPost]
     public async Task<IActionResult> OnPost(IFormCollection collection)
     {
-
-        StringValues unsafeUserName = collection["users"];
-        StringValues unsafeRoleName = collection["roles"];
+        var unsafeUserName = collection["users"];
+        var unsafeRoleName = collection["roles"];
         if (unsafeUserName.IsNullOrEmpty())
         {
             ViewBag.Message = unsafeUserName + " is null or empty.";
@@ -48,11 +47,11 @@ public class RoleController : Controller
         }
 
         HtmlSanitizer htmlSanitizer = new();
-        string userName = htmlSanitizer.Sanitize(unsafeUserName.ToString());
-        string roleName = htmlSanitizer.Sanitize(unsafeRoleName.ToString());
+        var userName = htmlSanitizer.Sanitize(unsafeUserName.ToString());
+        var roleName = htmlSanitizer.Sanitize(unsafeRoleName.ToString());
 
         var user = await _userManager.FindByNameAsync(userName);
-        bool deleteUser = !collection["deleteUserCheckbox"].ToString().IsNullOrEmpty();
+        var deleteUser = !collection["deleteUserCheckbox"].ToString().IsNullOrEmpty();
 
         Console.WriteLine("deleteUser: " + deleteUser + " | " + (deleteUser ? "TRUE" : "FALSE"));
 
@@ -65,13 +64,9 @@ public class RoleController : Controller
         }
 
         if (!await _roleManager.RoleExistsAsync(roleName))
-        {
             if (roleName == "user" || roleName == "moderator" || roleName == "admin")
-            {
                 //Create role if not exist, only if role is user, moderator or admin
                 await _roleManager.CreateAsync(new IdentityRole(roleName));
-            }
-        }
 
         if (deleteUser)
         {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Setup.Areas.Identity.Data;
 
@@ -9,7 +8,7 @@ public class SetupContext : IdentityDbContext<SetupUser>
 {
     private const string ADMIN_ROLE_ID = "c79d3d41-1379-45b1-8f77-aae3bd6042ac";
     private const string ADMIN_USER_ID = "54173ae5-e1fd-461a-960d-c9c666157f45";
-    private IPasswordHasher<SetupUser> _passwordHasher;
+    private readonly IPasswordHasher<SetupUser> _passwordHasher;
 
     public SetupContext(DbContextOptions<SetupContext> options, IPasswordHasher<SetupUser> passwordHasher)
         : base(options)
@@ -32,7 +31,7 @@ public class SetupContext : IdentityDbContext<SetupUser>
             UserName = "admin",
             NormalizedUserName = "ADMIN"
         };
-        var password = System.Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+        var password = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
         var hash = _passwordHasher.HashPassword(user, password);
         user.PasswordHash = hash;
 
@@ -40,7 +39,7 @@ public class SetupContext : IdentityDbContext<SetupUser>
 
         // Seeding an admin role
         IdentityRole roleData = new() { Id = ADMIN_ROLE_ID, Name = "admin" };
-        DataBuilder<IdentityRole> adminRoleData = builder.Entity<IdentityRole>().HasData(roleData);
+        var adminRoleData = builder.Entity<IdentityRole>().HasData(roleData);
 
         // Seeding relation between user and role
         builder.Entity<IdentityUserRole<string>>().HasData(

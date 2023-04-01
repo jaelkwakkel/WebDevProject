@@ -23,21 +23,16 @@ builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 //Get connection string and add DbContext
 builder.Services.AddDbContext<SetupContext>(x => x.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<SetupUser>(options =>
-{
-    options.SignIn.RequireConfirmedAccount = true;
-})
+builder.Services.AddDefaultIdentity<SetupUser>(options => { options.SignIn.RequireConfirmedAccount = true; })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<SetupContext>();
 
 if (!builder.Environment.IsDevelopment())
-{
     builder.Services.Configure<IdentityOptions>(options =>
     {
         //To make testing and development easier, a unique email is only required in production and acceptance
         options.User.RequireUniqueEmail = true;
     });
-}
 
 //Fix for error 13?
 //builder.Services.AddDataProtection()
@@ -69,12 +64,12 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+//if (!app.Environment.IsDevelopment())
+//{
+app.UseExceptionHandler("/Home/Error");
+// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+app.UseHsts();
+//}
 
 // Security headers
 app.Use(async (context, next) =>
@@ -83,6 +78,9 @@ app.Use(async (context, next) =>
     context.Response.Headers.Add("X-Xss-Protection", "1; mode=block");
     context.Response.Headers.Add("Referrer-Policy", "no-referrer");
     context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
+    context.Response.Headers.Add("Content-Security-Policy", "default-src 'self';frame-ancestors 'none';");
+    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+
     await next();
 });
 
@@ -96,8 +94,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    "default",
+    "{controller=Home}/{action=Index}/{id?}");
 
 app.MapHub<GameHub>("/gameHub");
 

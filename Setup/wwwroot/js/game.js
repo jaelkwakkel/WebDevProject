@@ -97,11 +97,11 @@ connection.on('Finishgame', (winnerName) => {
     console.log("Winner: " + winnerName);
     connection.invoke("SaveFinishedGameToAccount")
         .then(function () {
-            $('#finishGameModal').modal({ backdrop: 'static', keyboard: false });
+            $('#finishGameModal').modal({backdrop: 'static', keyboard: false});
         })
         .catch(function (err) {
-        return console.error(err.toString());
-    });
+            return console.error(err.toString());
+        });
 });
 
 connection.on('HideNameInput', () => {

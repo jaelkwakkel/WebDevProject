@@ -3,6 +3,9 @@
 
 #nullable disable
 
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -10,9 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Setup.Areas.Identity.Data;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Text.Encodings.Web;
 
 namespace Setup.Areas.Identity.Pages.Account;
 
@@ -21,10 +21,10 @@ public class RegisterModel : PageModel
     private readonly IEmailSender _emailSender;
     private readonly IUserEmailStore<SetupUser> _emailStore;
     private readonly ILogger<RegisterModel> _logger;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly SignInManager<SetupUser> _signInManager;
     private readonly UserManager<SetupUser> _userManager;
     private readonly IUserStore<SetupUser> _userStore;
-    private readonly RoleManager<IdentityRole> _roleManager;
 
     public RegisterModel(
         UserManager<SetupUser> userManager,
@@ -80,10 +80,7 @@ public class RegisterModel : PageModel
             await _userStore.SetUserNameAsync(user, Input.Username, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
-            if (!await _roleManager.RoleExistsAsync("User"))
-            {
-                await _roleManager.CreateAsync(new IdentityRole("User"));
-            }
+            if (!await _roleManager.RoleExistsAsync("User")) await _roleManager.CreateAsync(new IdentityRole("User"));
 
             var result = await _userManager.CreateAsync(user, Input.Password);
 
@@ -108,9 +105,7 @@ public class RegisterModel : PageModel
                     $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                 if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                {
                     return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl });
-                }
 
                 await _signInManager.SignInAsync(user, false);
                 return LocalRedirect(returnUrl);

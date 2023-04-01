@@ -13,9 +13,9 @@ public class GameHub : Hub
     private static readonly List<GameGroup> Games = new();
     private static readonly List<UserModel> Users = new();
     private readonly SetupContext _context;
-    private readonly HtmlSanitizer htmlSanitizer;
 
     private readonly UserManager<SetupUser> _userManager;
+    private readonly HtmlSanitizer htmlSanitizer;
 
     public GameHub(UserManager<SetupUser> usermanager, SetupContext context)
     {
@@ -42,8 +42,8 @@ public class GameHub : Hub
 
     public async Task CreateOrJoin(string unsafeKey, string unsafeName)
     {
-        string key = htmlSanitizer.Sanitize(unsafeKey);
-        string name = htmlSanitizer.Sanitize(unsafeName);
+        var key = htmlSanitizer.Sanitize(unsafeKey);
+        var name = htmlSanitizer.Sanitize(unsafeName);
 
         if (Users.All(x => x.ConnectionId != Context.ConnectionId))
             Users.Add(new UserModel(Context.ConnectionId, name));
@@ -84,7 +84,7 @@ public class GameHub : Hub
         await Clients.Caller.SendAsync("JoinedGroup", key);
     }
 
-    private UserModel? GetConnectedUser()
+    public UserModel? GetConnectedUser()
     {
         return Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
     }
@@ -163,16 +163,15 @@ public class GameHub : Hub
         _context.SaveChanges();
 
         Console.WriteLine("Saved for account: " + setupUser.UserName + " AKA " + currentUser.Name);
-        return;
     }
 
     public async Task PlacedBuilding(string unsafeMoveValues)
     {
-        string moveValues = htmlSanitizer.Sanitize(unsafeMoveValues);
+        var moveValues = htmlSanitizer.Sanitize(unsafeMoveValues);
 
         //TODO: C: May throw error
         //Do not replace with var!
-        MoveValues? moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(moveValues);
+        var moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(moveValues);
 
         if (moveValuesObject is null)
         {
@@ -255,7 +254,7 @@ public class GameHub : Hub
 
     public async Task RemoveGame(string unsafeRoomCode)
     {
-        string roomCode = htmlSanitizer.Sanitize(unsafeRoomCode);
+        var roomCode = htmlSanitizer.Sanitize(unsafeRoomCode);
 
         var setupUser = _userManager.Users.FirstOrDefault(u => u.Id == Context.UserIdentifier);
 
@@ -285,10 +284,7 @@ public class GameHub : Hub
         await Clients.Caller.SendAsync("Message", "Succesfully removed game with code: " + game.Key);
         Games.Remove(game);
         List<(string, bool)> gameInfo = new();
-        Games.ForEach(x =>
-        {
-            gameInfo.Add((x.Key, x.HasFinished));
-        });
+        Games.ForEach(x => { gameInfo.Add((x.Key, x.HasFinished)); });
 
         await Clients.Caller.SendAsync("UpdateGameList", gameInfo.ToJson());
     }
@@ -311,7 +307,7 @@ public class GameHub : Hub
             return;
         }
 
-        int amount = Games.RemoveAll(game => game.HasFinished);
+        var amount = Games.RemoveAll(game => game.HasFinished);
         await Clients.Caller.SendAsync("Message", $"Succesfully removed {amount} games");
     }
 
@@ -334,10 +330,7 @@ public class GameHub : Hub
         }
 
         List<(string, bool)> gameInfo = new();
-        Games.ForEach(x =>
-        {
-            gameInfo.Add((x.Key, x.HasFinished));
-        });
+        Games.ForEach(x => { gameInfo.Add((x.Key, x.HasFinished)); });
 
         await Clients.Caller.SendAsync("UpdateGameList", gameInfo.ToJson());
     }
@@ -345,8 +338,8 @@ public class GameHub : Hub
 
     private class MoveValues
     {
-        public BuildingType BuildingType = BuildingType.Grass;
-        public int XPosition = 0;
-        public int YPosition = 0;
+        public readonly BuildingType BuildingType = BuildingType.Grass;
+        public readonly int XPosition = 0;
+        public readonly int YPosition = 0;
     }
 }
