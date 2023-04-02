@@ -173,6 +173,7 @@ public class GameHub : Hub
     public async Task PlacedBuilding(string unsafeMoveValues)
     {
         //var moveValues = htmlSanitizer.Sanitize(unsafeMoveValues);
+        var moveValues = unsafeMoveValues;
 
         //TODO: C: May throw error
         //Do not replace with var!
