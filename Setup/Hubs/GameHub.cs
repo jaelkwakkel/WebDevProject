@@ -62,7 +62,7 @@ public class GameHub : Hub
 
         var user = GetConnectedUser();
         if (user == null) return;
-        var game = Games.FirstOrDefault(g => g.Key == key);
+        GameGroup? game = GetGame(key);
         if (game == null)
         {
             game = new GameGroup(key, user);
@@ -82,6 +82,11 @@ public class GameHub : Hub
         await Clients.Group(game.Key).SendAsync("GamePlayMessage", $"{user.Name} has joined the game.");
 
         await Clients.Caller.SendAsync("JoinedGroup", key);
+    }
+
+    public GameGroup? GetGame(string key)
+    {
+        return Games.FirstOrDefault(g => g.Key == key);
     }
 
     public UserModel? GetConnectedUser()
@@ -167,7 +172,7 @@ public class GameHub : Hub
 
     public async Task PlacedBuilding(string unsafeMoveValues)
     {
-        var moveValues = htmlSanitizer.Sanitize(unsafeMoveValues);
+        //var moveValues = htmlSanitizer.Sanitize(unsafeMoveValues);
 
         //TODO: C: May throw error
         //Do not replace with var!
@@ -336,9 +341,9 @@ public class GameHub : Hub
     }
 
 
-    private class MoveValues
+    public class MoveValues
     {
-        public readonly BuildingType BuildingType = BuildingType.Grass;
+        public BuildingType BuildingType = BuildingType.Grass;
         public readonly int XPosition = 0;
         public readonly int YPosition = 0;
     }
