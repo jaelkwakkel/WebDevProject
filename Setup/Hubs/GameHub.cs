@@ -173,14 +173,17 @@ public class GameHub : Hub
     public async Task PlacedBuilding(string unsafeMoveValues)
     {
         //var moveValues = htmlSanitizer.Sanitize(unsafeMoveValues);
-        var moveValues = unsafeMoveValues;
+        //string moveValues = unsafeMoveValues;
 
-        //TODO: C: May throw error
-        //Do not replace with var!
-        var moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(moveValues);
+        // TODO: C: May throw error
+        // Do not replace with var!
+        // ReSharper disable All
+        MoveValues? moveValuesObject = JsonConvert.DeserializeObject<MoveValues>(unsafeMoveValues);
+        // ReSharper restore All
 
         if (moveValuesObject is null)
         {
+            Console.WriteLine("XXX: movesnull");
             await Clients.Caller.SendAsync("GamePlayError", "An unexpected error ocurred.");
             return;
         }
@@ -190,6 +193,7 @@ public class GameHub : Hub
 
         if (game is null)
         {
+            Console.WriteLine("XXX: gamenull");
             await Clients.Caller.SendAsync("GamePlayError", "An unexpected error ocurred.");
             return;
         }
@@ -223,10 +227,11 @@ public class GameHub : Hub
         }
 
         var (succeed, errorMessage) =
-            game.TryPlaceBuilding(moveValuesObject.XPosition, moveValuesObject.YPosition, buildingType,
+            game.TryPlaceBuilding(moveValuesObject.xPosition, moveValuesObject.yPosition, buildingType,
                 Context.ConnectionId);
         if (!succeed)
         {
+            Console.WriteLine($"Error: {errorMessage}");
             await Clients.Caller.SendAsync("GamePlayError", errorMessage);
             return;
         }
@@ -341,11 +346,12 @@ public class GameHub : Hub
         await Clients.Caller.SendAsync("UpdateGameList", gameInfo.ToJson());
     }
 
-
+    // ReSharper disable All
     public class MoveValues
     {
+        public int xPosition;
+        public int yPosition;
         public BuildingType BuildingType = BuildingType.Grass;
-        public readonly int XPosition = 0;
-        public readonly int YPosition = 0;
     }
+    // ReSharper restore All
 }
