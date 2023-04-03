@@ -97,7 +97,8 @@ connection.on('Finishgame', (winnerName) => {
     console.log("Winner: " + winnerName);
     connection.invoke("SaveFinishedGameToAccount")
         .then(function () {
-            $('#finishGameModal').modal({backdrop: 'static', keyboard: false});
+            $('#finishGameModal').modal({ backdrop: 'static', keyboard: false });
+            $('#finish-message-content').text(winnerName + " has won the game!");
         })
         .catch(function (err) {
             return console.error(err.toString());
